@@ -63,9 +63,63 @@ const TLC_EMBED = (() => {
     document.querySelectorAll("#viewer-url").forEach(node => { node.textContent = viewerUrl; });
   }
 
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise((resolve, reject) => {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+      try {
+        if (document.execCommand("copy")) resolve();
+        else reject(new Error("Copy command failed."));
+      } catch (error) {
+        reject(error);
+      } finally {
+        textarea.remove();
+      }
+    });
+  }
+
+  function setupCopyButtons() {
+    document.querySelectorAll(".copy-url").forEach(button => {
+      if (button.dataset.copyReady === "true") return;
+      button.dataset.copyReady = "true";
+      button.addEventListener("click", async () => {
+        const source = document.getElementById(button.dataset.url);
+        if (!source) return;
+        const text = source.textContent.trim();
+        const original = button.textContent;
+        try {
+          await copyText(text);
+          button.textContent = "Copied!";
+          const status = document.getElementById("timer-status");
+          if (status) {
+            status.textContent = "";
+            requestAnimationFrame(() => { status.textContent = "URL copied."; });
+          }
+        } catch {
+          button.textContent = "Copy failed";
+          const status = document.getElementById("timer-status");
+          if (status) {
+            status.textContent = "";
+            requestAnimationFrame(() => { status.textContent = "Copy failed."; });
+          }
+        }
+        setTimeout(() => { button.textContent = original; }, 1500);
+      });
+    });
+  }
+
   function scheduleLinkRefresh() {
-    setTimeout(() => { applyViewerTheme(); refreshViewerLinks(); }, 0);
-    window.addEventListener("tlc-theme-changed", () => { applyViewerTheme(); refreshViewerLinks(); });
+    setTimeout(() => { applyViewerTheme(); refreshViewerLinks(); setupCopyButtons(); }, 0);
+    window.addEventListener("tlc-theme-changed", () => { applyViewerTheme(); refreshViewerLinks(); setupCopyButtons(); });
   }
 
   applyMode();
