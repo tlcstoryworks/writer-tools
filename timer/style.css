@@ -128,6 +128,46 @@ button.secondary { background: transparent; }
 
 button.danger { color: #f2c4c4; }
 
+.sound-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: .75rem 1rem;
+  margin: .9rem auto 0;
+  padding: .8rem 1rem;
+  border: 1px solid var(--theme-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--theme-panel) 72%, transparent);
+  color: var(--theme-muted);
+  font-size: .85rem;
+}
+
+.sound-controls .sound-toggle,
+.sound-controls .sound-volume {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--theme-muted);
+}
+
+.sound-controls input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--theme-accent);
+}
+
+.sound-controls input[type="range"] {
+  width: 120px;
+  accent-color: var(--theme-accent);
+}
+
+.sound-controls button {
+  min-height: 38px;
+  padding: .45rem .75rem;
+  font-size: .8rem;
+}
+
 .hint {
   color: var(--theme-muted);
   text-align: center;
@@ -402,6 +442,22 @@ body.viewer .time {
   .settings-card { padding: 1rem; }
   .settings-actions { flex-wrap: wrap; }
   .settings-spacer { display: none; }
+
+  .sound-controls {
+    align-items: stretch;
+    flex-direction: column;
+    width: min(100%, 360px);
+  }
+
+  .sound-controls .sound-toggle,
+  .sound-controls .sound-volume {
+    justify-content: space-between;
+  }
+
+  .sound-controls input[type="range"] {
+    flex: 1;
+    width: auto;
+  }
 }
 
 
