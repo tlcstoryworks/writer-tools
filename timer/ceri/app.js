@@ -4,6 +4,7 @@
   const STORAGE_KEY = window.TIMER_STORAGE_KEY || "tlc-storyworks-writing-timer";
   const CONFIG_PARAM = "config";
   const DEFAULT_CONFIG = JSON.parse(JSON.stringify(TIMER_CONFIG));
+  const CONFIG_VERSION = Number(TIMER_CONFIG.configVersion || 1);
   const params = new URLSearchParams(location.search);
   const viewerMode = params.has("viewer");
   const embedMode = params.has("embed");
@@ -66,7 +67,7 @@
 
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (saved && saved.streamName && Array.isArray(saved.stages) && saved.stages.length) {
+      if (saved && saved.configVersion === CONFIG_VERSION && saved.streamName && Array.isArray(saved.stages) && saved.stages.length) {
         // Migrate the old personal default without overwriting intentional custom names.
         if (saved.streamName === "Writing with Ceri") {
           saved.streamName = "TLC Storyworks";
@@ -86,6 +87,7 @@
   function normalizeConfig(source) {
     return {
       streamName: String(source.streamName || "TLC Storyworks"),
+      configVersion: Number(source.configVersion || CONFIG_VERSION),
       planName: String(source.planName || source.name || "Writing Session"),
       stages: source.stages.map(stage => ({
         name: String(stage.name || "Stage"),
@@ -296,7 +298,7 @@
   }
 
   function applyConfig(nextConfig) {
-    config = normalizeConfig(nextConfig);
+    config = normalizeConfig({ ...nextConfig, configVersion: CONFIG_VERSION });
     stages = config.stages;
     recalculateTotals();
     state.running = false;
