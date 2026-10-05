@@ -1,5 +1,5 @@
 const TIMER_CONFIG = {
-  configVersion: 2,
+  configVersion: 3,
   activePlan: "ceri-session",
   streamName: "TLC Storyworks",
   planName: "Ceri's Writing Session",
@@ -7,13 +7,13 @@ const TIMER_CONFIG = {
     "ceri-session": {
       name: "Ceri's Writing Session",
       stages: [
-        { name: "Setup", minutes: 10, writing: false },
-        { name: "Writing Sprint 1", minutes: 25, writing: true },
+        { name: "Setup", minutes: 15, writing: false },
+        { name: "Writing Sprint 1", minutes: 20, writing: true },
+        { name: "Break", minutes: 10, writing: false },
+        { name: "Writing Sprint 2", minutes: 20, writing: true },
         { name: "Break", minutes: 5, writing: false },
-        { name: "Writing Sprint 2", minutes: 25, writing: true },
-        { name: "Break", minutes: 5, writing: false },
-        { name: "Writing Sprint 3", minutes: 25, writing: true },
-        { name: "Wrap-Up", minutes: 10, writing: false }
+        { name: "Writing Sprint 3", minutes: 20, writing: true },
+        { name: "Wrap-Up", minutes: 15, writing: false }
       ]
     }
   },
