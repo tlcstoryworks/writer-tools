@@ -1,4 +1,5 @@
 const TIMER_CONFIG = {
+  configVersion: 2,
   activePlan: "ceri-session",
   streamName: "TLC Storyworks",
   planName: "Ceri's Writing Session",
@@ -20,7 +21,7 @@ const TIMER_CONFIG = {
     showWritingProgress: true,
     showStreamProgress: true,
     showNextStage: true,
-    showPlanName: false
+    showPlanName: true
   },
   labels: {
     writingIcon: "Writing",
