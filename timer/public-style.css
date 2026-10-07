@@ -224,9 +224,11 @@ code {
   background: color-mix(in srgb, var(--theme-text) 8%, transparent);
 }
 
-body.viewer { background: transparent; }
+body.viewer,
+body.embed { background: transparent; }
 
-body.viewer .timer-shell {
+body.viewer .timer-shell,
+body.embed .timer-shell {
   width: min(900px, 94vw);
 }
 
@@ -236,7 +238,8 @@ body.viewer .sound-controls {
   display: none;
 }
 
-body.viewer .timer-card {
+body.viewer .timer-card,
+body.embed .timer-card {
   background: transparent;
   border: 0;
   box-shadow: none;
