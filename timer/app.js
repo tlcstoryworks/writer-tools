@@ -30,10 +30,14 @@
     const embedUrl = new URL(directUrl);
     embedUrl.search = "?embed&" + CONFIG_PARAM + "=" + sharedConfig;
 
-    $("direct-url")?.textContent = directUrl;
-    $("viewer-url")?.textContent = viewerUrl;
-    $("embed-url")?.textContent = embedUrl;
-    $("iframe-code")?.textContent = `<iframe src="${embedUrl}" width="100%" height="500" frameborder="0" title="Writing Stream Timer"></iframe>`;
+    const directUrlNode = $("direct-url");
+    const viewerUrlNode = $("viewer-url");
+    const embedUrlNode = $("embed-url");
+    const iframeCodeNode = $("iframe-code");
+    if (directUrlNode) directUrlNode.textContent = directUrl;
+    if (viewerUrlNode) viewerUrlNode.textContent = viewerUrl;
+    if (embedUrlNode) embedUrlNode.textContent = embedUrl;
+    if (iframeCodeNode) iframeCodeNode.textContent = `<iframe src="${embedUrl}" width="100%" height="500" frameborder="0" title="Writing Stream Timer"></iframe>`;
 
     document.querySelectorAll(".copy-url").forEach(button => {
       button.addEventListener("click", async () => {
