@@ -159,13 +159,21 @@
   }
   function setupUsageLinks() {
     const base = new URL(location.href); base.search = ""; base.hash = "";
-    const directUrl = base.href, viewerUrl = new URL(directUrl); viewerUrl.search = "?viewer&theme=" + encodeURIComponent(getThemePreset());
-    $("direct-url").textContent = directUrl; $("viewer-url").textContent = viewerUrl.href;
-    document.querySelectorAll(".copy-url").forEach(button => button.addEventListener("click", async () => {
+    const directUrl = base.href;
+    const embedUrl = new URL(directUrl); embedUrl.search = "?embed";
+    const viewerUrl = new URL(directUrl); viewerUrl.search = "?viewer&theme=" + encodeURIComponent(getThemePreset());
+    $("direct-url").textContent = directUrl;
+    if ($("embed-url")) $("embed-url").textContent = embedUrl.href;
+    $("viewer-url").textContent = viewerUrl.href;
+    document.querySelectorAll(".copy-url").forEach(button => {
+      if (button.dataset.copyReady === "true") return;
+      button.dataset.copyReady = "true";
+      button.addEventListener("click", async () => {
       const source = $(button.dataset.url).textContent;
       try { await navigator.clipboard.writeText(source); const original = button.textContent; button.textContent = "Copied!"; announce("URL copied."); setTimeout(() => { button.textContent = original; }, 1200); }
       catch { button.textContent = "Copy failed"; announce("Copy failed."); setTimeout(() => { button.textContent = "Copy"; }, 1500); }
-    }));
+      });
+    });
   }
   $("preset").value = presetKey; loadPreset(); $("preset").value = presetKey; buildStages(); loadSoundSettings(); reset();
   $("preset").addEventListener("change", event => selectPreset(event.target.value));
