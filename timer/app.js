@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "tlc-storyworks-writing-timer";
+  const STORAGE_KEY = window.TIMER_STORAGE_KEY || "tlc-storyworks-writing-timer";
   const CONFIG_PARAM = "config";
   const DEFAULT_CONFIG = JSON.parse(JSON.stringify(TIMER_CONFIG));
   const params = new URLSearchParams(location.search);
@@ -30,10 +30,10 @@
     const embedUrl = new URL(directUrl);
     embedUrl.search = "?embed&" + CONFIG_PARAM + "=" + sharedConfig;
 
-    $("direct-url").textContent = directUrl;
-    $("viewer-url").textContent = viewerUrl;
-    $("embed-url").textContent = embedUrl;
-    $("iframe-code").textContent = `<iframe src="${embedUrl}" width="100%" height="500" frameborder="0" title="Writing Stream Timer"></iframe>`;
+    $("direct-url")?.textContent = directUrl;
+    $("viewer-url")?.textContent = viewerUrl;
+    $("embed-url")?.textContent = embedUrl;
+    $("iframe-code")?.textContent = `<iframe src="${embedUrl}" width="100%" height="500" frameborder="0" title="Writing Stream Timer"></iframe>`;
 
     document.querySelectorAll(".copy-url").forEach(button => {
       button.addEventListener("click", async () => {
