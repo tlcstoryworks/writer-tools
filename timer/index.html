@@ -11,7 +11,6 @@
 </head>
 <body data-tool="timer">
   <a class="back-link" href="../">← Writing Tools</a>
-
   <main class="timer-shell" id="top">
     <section class="timer-card">
       <div class="eyebrow">TLC Storyworks</div>
@@ -19,78 +18,42 @@
       <h1 id="stage-name" aria-live="polite">Ready</h1>
       <div class="time" id="time" role="timer" aria-label="25 minutes remaining">25:00</div>
       <div id="timer-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
-
       <div class="progress-wrap">
-        <div class="progress-label">
-          <span>Session progress</span>
-          <span id="progress-percent">0%</span>
-        </div>
-        <div class="progress-track" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div class="progress-fill" id="progress"></div>
-        </div>
+        <div class="progress-label"><span>Session progress</span><span id="progress-percent">0%</span></div>
+        <div class="progress-track" role="progressbar" aria-label="Session progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-fill" id="progress"></div></div>
       </div>
-
-      <div class="meta">
-        <span id="round-count">Round 1 of 4</span>
-        <span id="next-stage">Next: Break — 05:00</span>
-      </div>
+      <div class="meta"><span id="round-count">Round 1 of 4</span><span id="next-stage">Next: Break — 05:00</span></div>
     </section>
-
     <section class="controls" aria-label="Timer controls">
-      <label class="preset-picker">
-        <span>Preset</span>
-        <select id="preset">
-          <option value="classic">Classic Pomodoro · 25/5</option>
-          <option value="short">Short Pomodoro · 15/5</option>
-          <option value="long">Long Focus · 50/10</option>
-        </select>
-      </label>
-      <button id="start">Start</button>
-      <button id="pause">Pause</button>
-      <button id="restart">Restart</button>
-      <button id="skip">Skip</button>
-      <button id="reset">Reset</button>
+      <label class="preset-picker"><span>Preset</span><select id="preset">
+        <option value="classic">Classic Pomodoro · 25/5</option>
+        <option value="short">Short Pomodoro · 15/5</option>
+        <option value="long">Long Focus · 50/10</option>
+      </select></label>
+      <button id="start">Start</button><button id="pause">Pause</button><button id="restart">Restart</button><button id="skip">Skip</button><button id="reset">Reset</button>
     </section>
-
     <section class="sound-controls" aria-label="Timer sounds">
       <label class="sound-toggle"><input type="checkbox" id="sound-enabled"> <span>Sound cues</span></label>
       <label class="sound-volume" for="sound-volume">Volume <input type="range" id="sound-volume" min="0" max="1" step="0.05" value="0.55"></label>
       <button type="button" id="sound-test">Test sound</button>
     </section>
-
     <details class="usage-help">
       <summary>Using the timer elsewhere</summary>
       <div class="usage-content">
-        <section>
-          <h2>OBS / Streamlabs</h2>
-          <p>Add the timer as a <strong>Browser Source</strong> using the viewer URL.</p>
-          <div class="url-box"><code id="viewer-url"></code><button type="button" class="copy-url" data-url="viewer-url">Copy</button></div>
-          <p class="usage-note">Viewer mode hides the controls and uses a transparent background. The selected theme preset is included in the URL.</p>
-        </section>
-        <section>
-          <h2>Direct use</h2>
-          <p>Use the timer normally without a query parameter.</p>
-          <div class="url-box"><code id="direct-url"></code><button type="button" class="copy-url" data-url="direct-url">Copy</button></div>
-        </section>
+        <section><h2>Interactive embed</h2><p>Use this URL when you want the timer controls available inside an iframe or embedded page.</p><div class="url-box"><code id="embed-url"></code><button type="button" class="copy-url" data-url="embed-url">Copy</button></div></section>
+        <section><h2>OBS / Streamlabs</h2><p>Add the timer as a <strong>Browser Source</strong> using the viewer URL.</p><div class="url-box"><code id="viewer-url"></code><button type="button" class="copy-url" data-url="viewer-url">Copy</button></div><p class="usage-note">Viewer mode hides the controls and uses a transparent background. The selected theme preset is included in the URL.</p></section>
+        <section><h2>Direct use</h2><p>Use the timer normally without a query parameter.</p><div class="url-box"><code id="direct-url"></code><button type="button" class="copy-url" data-url="direct-url">Copy</button></div></section>
       </div>
     </details>
   </main>
-
   <footer class="site-footer">
     <p class="copyright">© 2026 TLC Storyworks</p>
     <nav class="footer-links" aria-label="TLC Storyworks links">
-      <a href="../">← Back</a>
-      <a href="../">Home</a>
-      <a href="https://github.com/sponsors/tlcstoryworks">Support project</a>
-      <a href="https://github.com/tlcstoryworks/writer-tools/discussions">Discussions</a>
-      <a href="https://github.com/tlcstoryworks/writer-tools">Repository</a>
-      <a href="#top">Top ↑</a>
-      <a href="../SECURITY.md">Security</a>
-      <a href="../LICENSE">License</a>
+      <a href="../">← Back</a><a href="../">Home</a><a href="https://github.com/sponsors/tlcstoryworks">Support project</a><a href="https://github.com/tlcstoryworks/writer-tools/discussions">Discussions</a><a href="https://github.com/tlcstoryworks/writer-tools">Repository</a><a href="#top">Top ↑</a><a href="../SECURITY.md">Security</a><a href="../LICENSE">License</a>
     </nav>
   </footer>
-
   <script src="public-app.js"></script>
+  <script src="../embed.js"></script>
   <script src="../theme.js"></script>
   <script src="viewer-theme.js"></script>
 </body>
