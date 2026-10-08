@@ -177,7 +177,7 @@ The project site will use the repository's GitHub Pages URL with relative links,
 - [ ] Calendar / challenge progress view
 - [ ] Submission and external-link tracking
 - [ ] Writing game toolkit
-- [ ] Customizable crawl/adventure-style writing games
+- [ ] Customizable crawl/adventure-style writing games — early prototypes are now in playtesting: [The Midnight Train](https://tlcstoryworks.github.io/writer-tools/prototype/crawl/) and [The Lost Woods](https://tlcstoryworks.github.io/writer-tools/prototype/crawl/lost-woods/)
 - [ ] Shareable game configurations
 
 ### Stream & Embed Widgets
