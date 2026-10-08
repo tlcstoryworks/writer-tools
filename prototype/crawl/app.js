@@ -21,7 +21,7 @@ const ENCOUNTERS=[
 {kind:"sprint",title:"The Reflection",body:"The window catches your protagonist's reflection—but for one moment, it moves differently. You have six minutes to find out why.",action:"Write for 6 minutes, then enter the number of words you wrote.",reward:w=>w>=500?{tickets:1,clues:2,message:"The reflection finally moves with you. It leaves behind two clues and a ticket."}:w>=300?{tickets:1,clues:1,message:"The reflection finally moves with you. It leaves behind a clue and a ticket."}:w>=150?{clues:1,message:"The reflection stops moving. You found a clue, but not an answer."}:{message:"The reflection stops moving. Whatever it was, it isn't following you."}}
 ];
 const els={sceneLabel:document.getElementById("scene-label"),sceneText:document.getElementById("scene-text"),encounterLabel:document.getElementById("encounter-label"),encounterTitle:document.getElementById("encounter-title"),encounterBody:document.getElementById("encounter-body"),encounterPanel:document.getElementById("encounter-panel"),challengePanel:document.getElementById("challenge-panel"),challengeType:document.getElementById("challenge-type"),challengeTitle:document.getElementById("challenge-title"),challengeBody:document.getElementById("challenge-body"),challengeControls:document.getElementById("challenge-controls"),start:document.getElementById("start-button"),reset:document.getElementById("reset-button"),progressText:document.getElementById("progress-text"),progressCount:document.getElementById("progress-count"),progressFill:document.getElementById("progress-fill"),progressBar:document.querySelector(".progress-track"),tickets:document.getElementById("tickets"),clues:document.getElementById("clues"),words:document.getElementById("words"),status:document.getElementById("status")};
-function freshState(){return{active:false,complete:false,step:0,tickets:0,clues:0,words:0,used:[],current:null,doorOutcome:null}}
+function freshState(){return{active:false,complete:false,phase:"idle",step:0,tickets:0,clues:0,words:0,used:[],current:null,doorOutcome:null}}
 function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY));return s&&typeof s==="object"?{...freshState(),...s}:freshState()}catch{return freshState()}}
 let state=loadState();
 let selectedChoice=null;
@@ -52,13 +52,15 @@ function beginChallenge(e){els.encounterPanel.hidden=true;els.challengePanel.hid
 if(e.kind==="choice"){selectedChoice=null;e.choices.forEach(c=>{const b=document.createElement("button");b.type="button";b.className="primary";b.textContent=c.label;b.addEventListener("click",()=>{selectedChoice=c;els.challengeBody.innerHTML="<p>"+c.text+"</p><p>"+c.instruction+"</p>";els.challengeControls.innerHTML="";addWordInput(w=>finishChallenge({words:w,tickets:c.ticket||0,clues:c.clue||0,message:c.text}))});els.challengeControls.appendChild(b)});return}
 addWordInput(w=>finishChallenge({words:w}))}
 function showResourceGate(){
+state.phase="door";
+state.current=null;
 els.encounterPanel.hidden=true;
 els.challengePanel.hidden=false;
 els.challengeType.textContent="The Door";
 els.challengeControls.innerHTML="";
 if(state.tickets<2){
 els.challengeTitle.textContent="Earn Your Passage";
-els.challengeBody.innerHTML="<p>The conductor looks at your ticket. It is not enough.</p><p><strong>Write at least 250 words</strong> about a moment when your protagonist earns the right to continue somewhere they were not expected to enter.</p><p>Your writing will earn you one Ticket.</p>";
+els.challengeBody.innerHTML="<p>The conductor holds out a hand. “Ticket.”</p><p>You show what you have. They shake their head.</p><p><strong>Write at least 250 words</strong> about a moment when your protagonist earns the right to continue somewhere they were not expected to enter.</p><p>Your writing will earn you one Ticket.</p>";
 addWordInput(w=>{
 state.words+=w;
 if(w>=250){state.tickets++;setStatus("The conductor punches your ticket. Passage earned.");updateStats();updateProgress();save();showResourceGate()}
@@ -68,7 +70,7 @@ return;
 }
 if(state.clues<2){
 els.challengeTitle.textContent="Find What Is Hidden";
-els.challengeBody.innerHTML="<p>The conductor taps the side of your ticket. “You may have earned your passage,” they say, “but you still do not know enough.”</p><p><strong>Write at least 250 words</strong> revealing a hidden connection between your protagonist and something they encountered on the train.</p><p>Your writing will earn you one Clue.</p>";
+els.challengeBody.innerHTML="<p>The conductor studies your ticket. “You may have earned your passage,” they say, “but you still do not know enough.”</p><p><strong>Write at least 250 words</strong> revealing a hidden connection between your protagonist and something they encountered on the train.</p><p>Your writing will earn you one Clue.</p>";
 addWordInput(w=>{
 state.words+=w;
 if(w>=250){state.clues++;setStatus("Something clicks into place. You found a clue.");updateStats();updateProgress();save();showResourceGate()}
@@ -81,8 +83,49 @@ state.tickets-=2;
 state.clues-=2;
 updateStats();
 save();
-setStatus("The conductor takes your tickets and studies the clues. The door unlocks.");
-continueToDestination();
+setStatus("The conductor takes your tickets and studies the clues. The lock clicks.");
+showDoorFinalChallenge();
+}
+function showDoorFinalChallenge(){
+state.phase="door-final";
+els.encounterPanel.hidden=true;
+els.challengePanel.hidden=false;
+els.challengeType.textContent="The Door";
+els.challengeTitle.textContent="What Was This Journey About?";
+els.challengeBody.innerHTML="<p>The conductor looks at the clues you gathered, then at the blank ticket that is no longer blank.</p><p>“You have earned the right to leave,” they say. “But before you go, decide what all of this meant.”</p><p><strong>Write at least 300 words</strong> connecting something your protagonist encountered on the train to the reason the train came for them.</p><p>This is not another resource check. This is the piece of the story that belongs to you.</p>";
+els.challengeControls.innerHTML="";
+addWordInput(w=>{
+state.words+=w;
+if(w>=300){
+state.phase="destination";
+state.step=5;
+state.current=null;
+updateStats();
+updateProgress();
+save();
+renderStory(5);
+showDestinationArrival();
+}else{
+setStatus("The conductor waits. You need at least 300 words to decide what the journey meant.");
+updateStats();
+save();
+}
+});
+}
+function showDestinationArrival(){
+els.encounterPanel.hidden=false;
+els.challengePanel.hidden=true;
+els.encounterLabel.textContent="The Destination";
+els.encounterTitle.textContent="The doors open.";
+els.encounterBody.innerHTML="<p>"+getResourceOutcome().destination+"</p><p><strong>Whatever happens next belongs to the story you write from here.</strong></p>";
+els.challengeControls.innerHTML="";
+const b=document.createElement("button");
+b.type="button";
+b.className="primary";
+b.textContent="Leave the train";
+b.addEventListener("click",finishCrawl);
+els.encounterBody.appendChild(b);
+setStatus("The door is open. The destination is yours.");
 }
 function continueToDestination(){
 state.step=5;
@@ -93,11 +136,11 @@ updateProgress();
 renderStory(STORY.length-1);
 finishCrawl();
 }
-function finishChallenge(r){const e=ENCOUNTERS[state.current];state.words+=r.words||0;state.tickets+=r.tickets||r.ticket||0;state.clues+=r.clues||r.clue||0;if(e.reward){const x=e.reward(r.words||0);state.tickets+=x.tickets||0;state.clues+=x.clues||0;setStatus(x.message||"Challenge complete.")}else setStatus(r.message||"Challenge complete.");state.step++;save();updateStats();updateProgress();if(state.step>=MAX_STEPS){finishCrawl();return}renderStory(state.step);if(state.step===4){save();setTimeout(showResourceGate,250);return}const n=chooseEncounter();save();setTimeout(()=>showEncounter(n),250)}
-function finishCrawl(){state.complete=true;state.active=false;state.current=null;save();renderStory(STORY.length-1);els.encounterPanel.hidden=false;els.challengePanel.hidden=true;els.encounterLabel.textContent="The journey is complete";els.encounterTitle.textContent="You have reached the final stop.";els.encounterBody.innerHTML="<p>Your ticket is covered in your own words. You leave the train carrying "+state.tickets+" ticket"+(state.tickets===1?"":"s")+" and "+state.clues+" clue"+(state.clues===1?"":"s")+".</p><p><strong>There is only one question left: what happens next?</strong></p>";els.start.textContent="Play again";setStatus("Crawl complete.")}
-function start(){state=freshState();state.active=true;renderStory(0);const e=chooseEncounter();updateStats();updateProgress();showEncounter(e);els.start.textContent="Restart crawl";setStatus("The train doors open.");save()}
+function finishChallenge(r){const e=ENCOUNTERS[state.current];state.words+=r.words||0;state.tickets+=r.tickets||r.ticket||0;state.clues+=r.clues||r.clue||0;if(e.reward){const x=e.reward(r.words||0);state.tickets+=x.tickets||0;state.clues+=x.clues||0;setStatus(x.message||"Challenge complete.")}else setStatus(r.message||"Challenge complete.");state.step++;updateStats();updateProgress();if(state.step===4){state.phase="door";state.current=null;renderStory(4);save();setTimeout(showResourceGate,500);return}if(state.step>=MAX_STEPS){finishCrawl();return}state.phase="encounter";renderStory(state.step);const n=chooseEncounter();save();setTimeout(()=>showEncounter(n),500)}
+function finishCrawl(){state.step=MAX_STEPS;state.complete=true;state.active=false;state.phase="complete";state.current=null;save();updateStats();updateProgress();renderStory(STORY.length-1);els.encounterPanel.hidden=false;els.challengePanel.hidden=true;els.encounterLabel.textContent="The journey is complete";els.encounterTitle.textContent="You have reached the final stop.";els.encounterBody.innerHTML="<p>Your ticket is covered in your own words. You leave the train carrying "+state.tickets+" ticket"+(state.tickets===1?"":"s")+" and "+state.clues+" clue"+(state.clues===1?"":"s")+".</p><p><strong>There is only one question left: what happens next?</strong></p>";els.start.textContent="Play again";setStatus("Crawl complete.")}
+function start(){state=freshState();state.active=true;state.phase="encounter";renderStory(0);const e=chooseEncounter();updateStats();updateProgress();showEncounter(e);els.start.textContent="Restart crawl";setStatus("The train doors open.");save()}
 function reset(){state=freshState();selectedChoice=null;save();renderStory(0);els.encounterPanel.hidden=false;els.challengePanel.hidden=true;els.encounterLabel.textContent="Your next stop";els.encounterTitle.textContent="A train waits where no train should be.";els.encounterBody.innerHTML="<p>When you are ready, board the train. Your route will contain a mixture of fixed story beats and random writing challenges.</p>";els.start.textContent="Board the train";updateStats();updateProgress();setStatus("Crawl reset.")}
-els.start.addEventListener("click",start); els.reset.addEventListener("click",reset);renderStory(state.complete?STORY.length-1:state.step);updateStats();updateProgress();if(state.active&&!state.complete&&state.current!==null){showEncounter(ENCOUNTERS[state.current]);els.start.textContent="Restart crawl"}else if(state.complete)finishCrawl();
+els.start.addEventListener("click",start); els.reset.addEventListener("click",reset);renderStory(state.complete?STORY.length-1:state.step);updateStats();updateProgress();if(state.complete)finishCrawl();else if(state.active&&state.phase==="door"){showResourceGate()}else if(state.active&&state.phase==="door-final"){showDoorFinalChallenge()}else if(state.active&&state.phase==="destination"){showDestinationArrival()}else if(state.active&&state.current!==null){showEncounter(ENCOUNTERS[state.current]);els.start.textContent="Restart crawl"}
 } catch (error) {
   const status = document.getElementById("status");
   if (status) status.textContent = "Crawl engine error: " + (error && error.message ? error.message : String(error));
