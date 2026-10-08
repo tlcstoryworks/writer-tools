@@ -20,5 +20,14 @@
 <p class="status" id="status" role="status" aria-live="polite">Loading crawl…</p>
 <details class="prototype-notes"><summary>Prototype notes</summary><p>This is a playable experiment, not a finished Writer Tool. The story spine is fixed while writing encounters are selected randomly.</p><p>For this first pass, timed challenges are self-timed and word counts are entered manually. We are testing the crawl experience before building reusable crawl rules.</p></details>
 </section></main>
-<script src="app.js?v=20261007-4"></script>
+<script>
+window.addEventListener("error", function (event) {
+  var status = document.getElementById("status");
+  if (status) status.textContent = "JavaScript error: " + (event.message || "unknown error");
+});
+document.getElementById("start-button").onclick = function () {
+  document.getElementById("status").textContent = "Direct click received. Loading crawl engine…";
+};
+</script>
+<script src="app.js?v=20261007-4" onload="document.getElementById('status').textContent='Crawl engine loaded.';" onerror="document.getElementById('status').textContent='Crawl engine failed to load.';"></script>
 </body></html>
