@@ -21,7 +21,7 @@ const ENCOUNTERS=[
 {kind:"sprint",title:"The Reflection",body:"The window catches your protagonist's reflection—but for one moment, it moves differently. You have six minutes to find out why.",action:"Write for 6 minutes, then enter the number of words you wrote.",reward:w=>w>=500?{tickets:1,clues:2,message:"The reflection finally moves with you. It leaves behind two clues and a ticket."}:w>=300?{tickets:1,clues:1,message:"The reflection finally moves with you. It leaves behind a clue and a ticket."}:w>=150?{clues:1,message:"The reflection stops moving. You found a clue, but not an answer."}:{message:"The reflection stops moving. Whatever it was, it isn't following you."}}
 ];
 const els={sceneLabel:document.getElementById("scene-label"),sceneText:document.getElementById("scene-text"),encounterLabel:document.getElementById("encounter-label"),encounterTitle:document.getElementById("encounter-title"),encounterBody:document.getElementById("encounter-body"),encounterPanel:document.getElementById("encounter-panel"),challengePanel:document.getElementById("challenge-panel"),challengeType:document.getElementById("challenge-type"),challengeTitle:document.getElementById("challenge-title"),challengeBody:document.getElementById("challenge-body"),challengeControls:document.getElementById("challenge-controls"),start:document.getElementById("start-button"),reset:document.getElementById("reset-button"),progressText:document.getElementById("progress-text"),progressCount:document.getElementById("progress-count"),progressFill:document.getElementById("progress-fill"),progressBar:document.querySelector(".progress-track"),tickets:document.getElementById("tickets"),clues:document.getElementById("clues"),words:document.getElementById("words"),status:document.getElementById("status")};
-function freshState(){return{active:false,complete:false,step:0,tickets:0,clues:0,words:0,used:[],current:null}}
+function freshState(){return{active:false,complete:false,step:0,tickets:0,clues:0,words:0,used:[],current:null,doorOutcome:null}}
 function loadState(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY));return s&&typeof s==="object"?{...freshState(),...s}:freshState()}catch{return freshState()}}
 let state=loadState();
 let selectedChoice=null;
@@ -30,6 +30,7 @@ function setStatus(m){els.status.textContent=m||""}
 function updateStats(){els.tickets.textContent=state.tickets;els.clues.textContent=state.clues;els.words.textContent=state.words.toLocaleString()}
 function updateProgress(){const v=Math.min(state.step,MAX_STEPS);els.progressCount.textContent=v+" / "+MAX_STEPS;els.progressFill.style.width=v/MAX_STEPS*100+"%";els.progressBar.setAttribute("aria-valuenow",String(v));els.progressText.textContent=state.complete?"Journey complete":v===0?"The journey begins":"The journey continues"}
 function getResourceOutcome(){
+if(state.doorOutcome==="both")return{key:"both",door:"The conductor looks at your collection of punched tickets, then at the clues you have gathered. “You figured it out,” they say. “And you earned your way here.”",destination:"The train seems to recognize you. You spent your tickets to earn passage, and the clues you gathered let you understand why the train came for you. The door opens. What happens next belongs to the story you write from here."};
 const t=state.tickets,c=state.clues;
 if(t>=2&&c>=2)return{key:"both",door:"The conductor looks at your collection of punched tickets, then at the clues you have gathered. “You figured it out,” they say. “And you earned your way here.”",destination:"The train seems to recognize you. Your ticket is complete, and the pieces of the journey finally fit together. You understand why this train came for you—and you have earned the right to decide where it goes next."};
 if(t>=2)return{key:"tickets",door:"The conductor studies your punched tickets. “You have earned your passage,” they say. But their expression suggests there is still something you have missed.",destination:"The doors open without resistance. You have earned your way off the train, even if some of its mysteries remain. Perhaps understanding can come later—or perhaps it belongs in the story you write next."};
@@ -75,6 +76,7 @@ else{setStatus("The connection is not clear enough yet. You need at least 250 wo
 });
 return;
 }
+state.doorOutcome="both";
 state.tickets-=2;
 state.clues-=2;
 updateStats();
