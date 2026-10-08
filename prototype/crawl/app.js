@@ -1,4 +1,7 @@
-(()=>{"use strict";
+try {
+const __status = document.getElementById("status");
+if (__status) __status.textContent = "Crawl engine is executing…";
+"use strict";
 const STORAGE_KEY="tlc-storyworks-prototype-crawl",MAX_STEPS=6;
 const STORY=[
 {label:"The Platform",text:"The station clock says 12:07. Your ticket says 12:07. There is no train listed on the departure board, but a dark train is waiting at the far platform anyway. Its windows glow with warm yellow light."},
@@ -33,4 +36,8 @@ function finishCrawl(){state.complete=true;state.active=false;state.current=null
 function start(){if(state.complete)state=freshState();state.active=true;state.complete=false;state.step=0;renderStory(0);const e=chooseEncounter();updateStats();updateProgress();showEncounter(e);els.start.textContent="Restart crawl";setStatus("The train doors open.");save()}
 function reset(){state=freshState();save();renderStory(0);els.encounterPanel.hidden=false;els.challengePanel.hidden=true;els.encounterLabel.textContent="Your next stop";els.encounterTitle.textContent="A train waits where no train should be.";els.encounterBody.innerHTML="<p>When you are ready, board the train. Your route will contain a mixture of fixed story beats and random writing challenges.</p>";els.start.textContent="Board the train";updateStats();updateProgress();setStatus("Crawl reset.")}
 els.start.addEventListener("click",start); els.reset.addEventListener("click",reset);renderStory(state.complete?STORY.length-1:state.step);updateStats();updateProgress();if(state.active&&!state.complete&&state.current!==null){showEncounter(ENCOUNTERS[state.current]);els.start.textContent="Restart crawl"}else if(state.complete)finishCrawl();
-})();
+} catch (error) {
+  const status = document.getElementById("status");
+  if (status) status.textContent = "Crawl engine error: " + (error && error.message ? error.message : String(error));
+  throw error;
+}
