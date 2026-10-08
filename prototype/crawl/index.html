@@ -28,6 +28,9 @@ window.addEventListener("error", function (event) {
 document.getElementById("start-button").onclick = function () {
   document.getElementById("status").textContent = "Direct click received. Loading crawl engine…";
 };
+document.getElementById("reset-button").onclick = function () {
+  document.getElementById("status").textContent = "Reset click received.";
+};
 </script>
 <script src="app.js?v=20261007-4" onload="document.getElementById('status').textContent='Crawl engine loaded.';" onerror="document.getElementById('status').textContent='Crawl engine failed to load.';"></script>
 </body></html>
