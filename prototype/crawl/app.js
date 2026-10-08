@@ -53,7 +53,7 @@ addWordInput(w=>finishChallenge({words:w}))}
 function showResourceGate(){
 els.encounterPanel.hidden=true;
 els.challengePanel.hidden=false;
-els.challengeType.textContent="Resource check";
+els.challengeType.textContent="The Door";
 els.challengeControls.innerHTML="";
 if(state.tickets<2){
 els.challengeTitle.textContent="Earn Your Passage";
@@ -75,6 +75,11 @@ else{setStatus("The connection is not clear enough yet. You need at least 250 wo
 });
 return;
 }
+state.tickets-=2;
+state.clues-=2;
+updateStats();
+save();
+setStatus("The conductor takes your tickets and studies the clues. The door unlocks.");
 continueToDestination();
 }
 function continueToDestination(){
