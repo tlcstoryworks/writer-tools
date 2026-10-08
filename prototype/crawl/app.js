@@ -78,12 +78,12 @@ return;
 continueToDestination();
 }
 function continueToDestination(){
-state.step=5;
+state.step=MAX_STEPS;
 state.current=null;
 save();
 updateStats();
 updateProgress();
-renderStory(5);
+renderStory(STORY.length-1);
 finishCrawl();
 }
 function finishChallenge(r){const e=ENCOUNTERS[state.current];state.words+=r.words||0;state.tickets+=r.tickets||r.ticket||0;state.clues+=r.clues||r.clue||0;if(e.reward){const x=e.reward(r.words||0);state.tickets+=x.tickets||0;state.clues+=x.clues||0;setStatus(x.message||"Challenge complete.")}else setStatus(r.message||"Challenge complete.");state.step++;save();updateStats();updateProgress();if(state.step>=MAX_STEPS){finishCrawl();return}renderStory(state.step);if(state.step===4){save();setTimeout(showResourceGate,250);return}const n=chooseEncounter();save();setTimeout(()=>showEncounter(n),250)}
