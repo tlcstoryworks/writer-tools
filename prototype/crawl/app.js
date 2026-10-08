@@ -29,7 +29,21 @@ function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catc
 function setStatus(m){els.status.textContent=m||""}
 function updateStats(){els.tickets.textContent=state.tickets;els.clues.textContent=state.clues;els.words.textContent=state.words.toLocaleString()}
 function updateProgress(){const v=Math.min(state.step,MAX_STEPS);els.progressCount.textContent=v+" / "+MAX_STEPS;els.progressFill.style.width=v/MAX_STEPS*100+"%";els.progressBar.setAttribute("aria-valuenow",String(v));els.progressText.textContent=state.complete?"Journey complete":v===0?"The journey begins":"The journey continues"}
-function renderStory(i){const s=STORY[Math.min(i,STORY.length-1)];els.sceneLabel.textContent=s.label;els.sceneText.innerHTML="<p>"+s.text+"</p>"}
+function getResourceOutcome(){
+const t=state.tickets,c=state.clues;
+if(t>=2&&c>=2)return{key:"both",door:"The conductor looks at your collection of punched tickets, then at the clues you have gathered. “You figured it out,” they say. “And you earned your way here.”",destination:"The train seems to recognize you. Your ticket is complete, and the pieces of the journey finally fit together. You understand why this train came for you—and you have earned the right to decide where it goes next."};
+if(t>=2)return{key:"tickets",door:"The conductor studies your punched tickets. “You have earned your passage,” they say. But their expression suggests there is still something you have missed.",destination:"The doors open without resistance. You have earned your way off the train, even if some of its mysteries remain. Perhaps understanding can come later—or perhaps it belongs in the story you write next."};
+if(c>=2)return{key:"clues",door:"The conductor listens as you explain what you have learned. “You understand more than most passengers do,” they say. Then they glance toward the locked door. “Understanding and permission are not quite the same thing.”",destination:"The doors open, but not quite where you expected. You understand what the train was trying to show you, even if you never quite earned a normal ticket out. The mystery follows you into whatever story comes next."};
+return{key:"neither",door:"The conductor looks at your blank ticket. “You made it this far,” they say. “But perhaps you were never meant to understand the journey—or earn your way out of it.”",destination:"The doors open onto an unfamiliar platform. You leave with more questions than answers, carrying only the words you wrote along the way. Maybe that is exactly what the journey was for."};
+}
+function renderStory(i){
+const s=STORY[Math.min(i,STORY.length-1)];
+els.sceneLabel.textContent=s.label;
+let text=s.text;
+if(i===4)text=getResourceOutcome().door;
+if(i===5)text=getResourceOutcome().destination;
+els.sceneText.innerHTML="<p>"+text+"</p>";
+}
 function chooseEncounter(){let pool=ENCOUNTERS.filter((_,i)=>!state.used.includes(i));if(!pool.length)pool=ENCOUNTERS.filter((_,i)=>i!==state.current);if(!pool.length)pool=ENCOUNTERS;const e=pool[Math.floor(Math.random()*pool.length)],ri=ENCOUNTERS.indexOf(e);state.used.push(ri);state.current=ri;return e}
 function showEncounter(e){els.encounterPanel.hidden=false;els.challengePanel.hidden=true;els.encounterLabel.textContent="Random encounter";els.encounterTitle.textContent=e.title;els.encounterBody.innerHTML="<p>"+e.body+"</p><p>"+e.action+"</p>";els.challengeControls.innerHTML="";const b=document.createElement("button");b.type="button";b.className="primary";b.textContent=e.kind==="choice"?"Choose a door":"Begin challenge";b.addEventListener("click",()=>beginChallenge(e));els.encounterBody.appendChild(b)}
 function addWordInput(onComplete){const l=document.createElement("label");l.innerHTML='<span>Words written</span> <input id="challenge-words" type="number" min="0" inputmode="numeric" value="0">';const b=document.createElement("button");b.type="button";b.className="primary";b.textContent="Complete challenge";b.addEventListener("click",()=>{const w=Math.max(0,Number(document.getElementById("challenge-words").value)||0);onComplete(w)});els.challengeControls.append(l,b);document.getElementById("challenge-words").focus()}
