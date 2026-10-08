@@ -85,7 +85,7 @@ setStatus("The conductor takes your tickets and studies the clues. The door unlo
 continueToDestination();
 }
 function continueToDestination(){
-state.step=MAX_STEPS;
+state.step=5;
 state.current=null;
 save();
 updateStats();
@@ -95,7 +95,7 @@ finishCrawl();
 }
 function finishChallenge(r){const e=ENCOUNTERS[state.current];state.words+=r.words||0;state.tickets+=r.tickets||r.ticket||0;state.clues+=r.clues||r.clue||0;if(e.reward){const x=e.reward(r.words||0);state.tickets+=x.tickets||0;state.clues+=x.clues||0;setStatus(x.message||"Challenge complete.")}else setStatus(r.message||"Challenge complete.");state.step++;save();updateStats();updateProgress();if(state.step>=MAX_STEPS){finishCrawl();return}renderStory(state.step);if(state.step===4){save();setTimeout(showResourceGate,250);return}const n=chooseEncounter();save();setTimeout(()=>showEncounter(n),250)}
 function finishCrawl(){state.complete=true;state.active=false;state.current=null;save();renderStory(STORY.length-1);els.encounterPanel.hidden=false;els.challengePanel.hidden=true;els.encounterLabel.textContent="The journey is complete";els.encounterTitle.textContent="You have reached the final stop.";els.encounterBody.innerHTML="<p>Your ticket is covered in your own words. You leave the train carrying "+state.tickets+" ticket"+(state.tickets===1?"":"s")+" and "+state.clues+" clue"+(state.clues===1?"":"s")+".</p><p><strong>There is only one question left: what happens next?</strong></p>";els.start.textContent="Play again";setStatus("Crawl complete.")}
-function start(){if(state.complete)state=freshState();state.active=true;state.complete=false;state.step=0;renderStory(0);const e=chooseEncounter();updateStats();updateProgress();showEncounter(e);els.start.textContent="Restart crawl";setStatus("The train doors open.");save()}
+function start(){state=freshState();state.active=true;renderStory(0);const e=chooseEncounter();updateStats();updateProgress();showEncounter(e);els.start.textContent="Restart crawl";setStatus("The train doors open.");save()}
 function reset(){state=freshState();selectedChoice=null;save();renderStory(0);els.encounterPanel.hidden=false;els.challengePanel.hidden=true;els.encounterLabel.textContent="Your next stop";els.encounterTitle.textContent="A train waits where no train should be.";els.encounterBody.innerHTML="<p>When you are ready, board the train. Your route will contain a mixture of fixed story beats and random writing challenges.</p>";els.start.textContent="Board the train";updateStats();updateProgress();setStatus("Crawl reset.")}
 els.start.addEventListener("click",start); els.reset.addEventListener("click",reset);renderStory(state.complete?STORY.length-1:state.step);updateStats();updateProgress();if(state.active&&!state.complete&&state.current!==null){showEncounter(ENCOUNTERS[state.current]);els.start.textContent="Restart crawl"}else if(state.complete)finishCrawl();
 } catch (error) {
