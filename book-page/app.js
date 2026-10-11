@@ -135,7 +135,11 @@
     const headerText=settings.headerMode==="title"?$("book-title").value.trim():settings.headerMode==="author"?$("author").value.trim():"";
     const bookTitle=$("book-title").value.trim(), author=$("author").value.trim();
     const chapter=$("chapter").value.trim(), subtitle=$("subtitle").value.trim();
-    const socialLinks=$("social-links").value.trim();
+    const socialPlatforms = [
+      ["bluesky","BS"],["instagram","IG"],["tiktok","TT"],["youtube","YT"],
+      ["twitch","TW"],["threads","TH"],["x","X"],["website","↗"]
+    ].filter(([id]) => $("social-"+id).checked && $("social-"+id+"-value").value.trim())
+      .map(([id,icon]) => ({id,icon,label:({bluesky:"Bluesky",instagram:"Instagram",tiktok:"TikTok",youtube:"YouTube",twitch:"Twitch",threads:"Threads",x:"X",website:"Website"})[id],value:$("social-"+id+"-value").value.trim()}));
     ctx.font=settings.fontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     const lineHeight=settings.fontSize*settings.lineHeight;
     let y=top;
@@ -146,16 +150,8 @@
       y+=24;
     }
     y+=height*.015;
-    if(bookTitle) {
-      ctx.font="bold "+Math.round(settings.fontSize*1.18)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
-      y+=Math.round(settings.fontSize*1.55);
-      y+=settings.fontSize*.15;
-    }
-    if(author) {
-      ctx.font="italic "+Math.round(settings.fontSize*.82)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
-      y+=Math.round(settings.fontSize*1.2);
-    }
-    if(bookTitle || author) y+=settings.fontSize*.65;
+    const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
+    if(bookTitle || author) y+=creditFont*1.5 + 26;
     if(chapter) {
       ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
@@ -183,7 +179,8 @@
     }
     const contentBottom=height-bottom-(settings.pageNumber!=="none"?height*.045:0);
     const overflow=cursor-lineHeight>contentBottom+1;
-    return {width,height,margin,top,bottom,contentWidth,headerText,headerLines,bookTitle,author,socialLinks,chapter,subtitle,bodyTop,bodyLines,lineY,contentBottom,overflow,headerHeight:top};
+    const footerHeight=socialPlatforms.length ? 86 : 0;
+    return {width,height,margin,top,bottom,contentWidth,headerText,headerLines,bookTitle,author,socialPlatforms,chapter,subtitle,bodyTop,bodyLines,lineY,contentBottom:contentBottom-footerHeight,overflow:cursor-lineHeight>contentBottom-footerHeight+1,headerHeight:top,footerHeight};
   }
   function renderPage() {
     const {width,height}=dimensions();
@@ -192,7 +189,7 @@
     ctx.fillStyle=settings.paper; ctx.fillRect(0,0,width,height);
     ctx.fillStyle=settings.ink; ctx.strokeStyle=settings.ink;
     const layout=layoutPage();
-    const {margin,top,contentWidth,headerText,bookTitle,author,socialLinks,chapter,subtitle}=layout;
+    const {margin,top,contentWidth,headerText,bookTitle,author,socialPlatforms,chapter,subtitle}=layout;
     const center=width/2;
     if(headerText) {
       ctx.save(); ctx.globalAlpha=.75; ctx.font="16px "+JSON.stringify(settings.font)+", Georgia, serif"; ctx.textAlign="center";
@@ -202,16 +199,19 @@
     let y=top;
     if(headerText) y+=24;
     y+=height*.015;
-    if(bookTitle) {
-      ctx.textAlign="center"; ctx.font="bold "+Math.round(settings.fontSize*1.18)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
-      y+=Math.round(settings.fontSize*1.55); ctx.fillText(bookTitle,center,y,contentWidth);
-      y+=settings.fontSize*.15;
+    if(bookTitle || author) {
+      const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
+      ctx.font="bold "+creditFont+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+      ctx.textAlign="left";
+      if(bookTitle) ctx.fillText(bookTitle,margin,y+creditFont,contentWidth*.58);
+      ctx.font=creditFont+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+      ctx.textAlign="right";
+      if(author) ctx.fillText(author,width-margin,y+creditFont,contentWidth*.38);
+      y+=creditFont*1.5;
+      ctx.save(); ctx.globalAlpha=.5; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(margin,y+8); ctx.lineTo(width-margin,y+8); ctx.stroke(); ctx.restore();
+      y+=26;
     }
-    if(author) {
-      ctx.textAlign="center"; ctx.font="italic "+Math.round(settings.fontSize*.82)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
-      y+=Math.round(settings.fontSize*1.2); ctx.fillText(author,center,y,contentWidth);
-    }
-    if(bookTitle || author) y+=settings.fontSize*.65;
     if(chapter) {
       ctx.textAlign="center"; ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
@@ -229,12 +229,30 @@
       else { ctx.textAlign="left"; ctx.fillText(item.line.text,margin,item.y); }
     }
     ctx.restore();
-    if(socialLinks) {
-      ctx.save(); ctx.globalAlpha=.8; ctx.fillStyle=settings.ink;
-      ctx.font="18px "+JSON.stringify(settings.font)+", Georgia, serif"; ctx.textAlign="center";
-      const socialLines=wrapParagraph(socialLinks,contentWidth).slice(0,2);
-      const socialStart=height-layout.bottom*.9-(socialLines.length-1)*22;
-      socialLines.forEach((line,i)=>ctx.fillText(line,center,socialStart+i*22,contentWidth));
+    if(socialPlatforms.length) {
+      ctx.save(); ctx.fillStyle=settings.ink; ctx.strokeStyle=settings.ink;
+      const footerY=height-layout.bottom-52;
+      ctx.globalAlpha=.45; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(margin,footerY-18); ctx.lineTo(width-margin,footerY-18); ctx.stroke();
+      ctx.globalAlpha=.9;
+      const gap=24, iconSize=34, labelGap=9, itemGap=26;
+      ctx.font="18px "+JSON.stringify(settings.font)+", Georgia, serif";
+      const measured=socialPlatforms.map(item=>({...item,shown:item.value.replace(/^https?:\/\//,"").replace(/\/$/,""),textWidth:Math.min(ctx.measureText(item.value.replace(/^https?:\/\//,"").replace(/\/$/,"")).width,210)}));
+      const totalWidth=measured.reduce((sum,item)=>sum+iconSize+labelGap+item.textWidth,0)+itemGap*Math.max(0,measured.length-1);
+      let x=Math.max(margin,(width-totalWidth)/2), yIcon=footerY+2, row=0;
+      for(const item of measured) {
+        const itemWidth=iconSize+labelGap+item.textWidth;
+        if(x+itemWidth>width-margin && x>margin) { row++; x=margin; yIcon=footerY+2+row*42; }
+        ctx.save();
+        ctx.beginPath(); ctx.arc(x+iconSize/2,yIcon+iconSize/2,iconSize/2,0,Math.PI*2);
+        ctx.globalAlpha=.14; ctx.fill(); ctx.globalAlpha=.95;
+        ctx.font="bold 13px Arial, sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
+        ctx.fillText(item.icon,x+iconSize/2,yIcon+iconSize/2);
+        ctx.font="18px "+JSON.stringify(settings.font)+", Georgia, serif"; ctx.textAlign="left"; ctx.textBaseline="middle";
+        ctx.fillText(item.shown,x+iconSize+labelGap,yIcon+iconSize/2,item.textWidth);
+        ctx.restore();
+        x+=itemWidth+itemGap;
+      }
       ctx.restore();
     }
     if(settings.pageNumber!=="none" && settings.pageNumberText) {
@@ -286,7 +304,11 @@
     }
     $("style").addEventListener("change",()=>{setStylePreset($("style").value);saveSettings();renderPage();});
     $("excerpt").addEventListener("input",renderPage);
-    for(const id of ["book-title","author","chapter","subtitle","social-links"]) $(id).addEventListener("input",renderPage);
+    for(const id of ["book-title","author","chapter","subtitle"]) $(id).addEventListener("input",renderPage);
+    for(const id of ["bluesky","instagram","tiktok","youtube","twitch","threads","x","website"]) {
+      $("social-"+id).addEventListener("change",renderPage);
+      $("social-"+id+"-value").addEventListener("input",renderPage);
+    }
     $("download").addEventListener("click",download);
     $("reset-settings").addEventListener("click",resetSettings);
   }
