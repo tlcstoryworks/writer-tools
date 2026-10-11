@@ -205,6 +205,8 @@
       if(settings.divider!=="none") y+=settings.fontSize*1.5;
       y+=settings.fontSize*1.2;
     }
+    // Keep a deliberate visual breath between the heading area and the excerpt.
+    if(hasCredits || chapter || subtitle) y+=lineHeight*.8;
     const bodyTop=y;
     const text=$("excerpt").value.replace(/\r\n?/g,"\n");
     const paragraphs=text.split(/\n+/).map(p=>p.trim()).filter(Boolean);
