@@ -70,6 +70,20 @@ Open it at:
 
 The tracker stores its project data locally in the browser. Appearance settings are shared across TLC Storyworks tools in the same browser, including theme colors, fonts, text size, and line spacing.
 
+### Book Page Generator (early MVP)
+
+A browser-based tool for turning a pasted excerpt into a novel-style page image.
+
+- Portrait book-page and square share-card formats
+- Customizable typography, margins, alignment, colors, chapter details, dividers, running headers, and optional page numbers
+- Live canvas preview and high-resolution PNG export
+- Preserves typography and layout settings and warns when the excerpt exceeds the page; export remains disabled until it fits
+- Excerpt text is not stored in browser storage or uploaded; only display settings are saved locally
+
+Open it at:
+
+- `/book-page/` — Book Page Generator prototype
+
 ## Project structure
 
 ```
@@ -92,6 +106,10 @@ The tracker stores its project data locally in the browser. Appearance settings 
 │   ├── index.html
 │   ├── style.css
 │   └── app.js
+├── book-page/
+│   ├── index.html          # Book Page Generator interface
+│   ├── style.css
+│   └── app.js              # local canvas preview and PNG export
 ├── project-management/
 │   ├── index.html          # scaffolding / future project-management tools
 │   ├── style.css
@@ -169,7 +187,7 @@ The project site will use the repository's GitHub Pages URL with relative links,
 - [ ] Sensory-detail and five-senses prompts
 - [ ] Random word / object / detail tools
 - [ ] Writing challenge generator
-- [ ] Book Page Generator — turn pasted excerpts into novel-style page images for sharing
+- [ ] Book Page Generator — early browser-based MVP available for testing: [open the prototype](https://tlcstoryworks.github.io/writer-tools/book-page/)
 
 ### Challenges & Community
 - [ ] Challenge builder
