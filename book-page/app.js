@@ -3,11 +3,11 @@
   const $ = id => document.getElementById(id);
   const canvas = $("page-canvas");
   const ctx = canvas.getContext("2d");
-  const STORAGE_KEY = "tlc-storyworks-book-page-settings-v1";
+  const STORAGE_KEY = "tlc-storyworks-book-page-settings-v2";
   const DEFAULTS = {
     format:"portrait", style:"neutral", paper:"#f8f5ee", ink:"#292724",
     font:"Georgia", fontSize:27, lineHeight:1.55, align:"left", margin:11, topPadding:10.5, bottomPadding:8.5,
-    paragraphSpace:.8, pageNumber:"none", pageNumberText:"1",
+    paragraphSpace:1.0, pageNumber:"none", pageNumberText:"1",
     divider:"none", creditDivider:"line"
   };
   const controlIds = Object.keys(DEFAULTS);
@@ -32,16 +32,38 @@
       localStorage.setItem(STORAGE_KEY,JSON.stringify(safe));
     } catch {}
   }
-  function readControls() {
+  function colorLuminance(hex) {
+    const rgb=hex.match(/[0-9a-f]{2}/gi);
+    if(!rgb || rgb.length<3) return 0;
+    const channels=rgb.slice(0,3).map(part=>{
+      const value=parseInt(part,16)/255;
+      return value<=.04045 ? value/12.92 : Math.pow((value+.055)/1.055,2.4);
+    });
+    return .2126*channels[0]+.7152*channels[1]+.0722*channels[2];
+  }
+  function contrastRatio(a,b) {
+    const first=colorLuminance(a), second=colorLuminance(b);
+    return (Math.max(first,second)+.05)/(Math.min(first,second)+.05);
+  }
+  function ensureReadableContrast() {
+    if(contrastRatio(settings.paper,settings.ink)>=4.5) return;
+    const blackRatio=contrastRatio(settings.paper,"#000000");
+    const whiteRatio=contrastRatio(settings.paper,"#ffffff");
+    settings.ink=blackRatio>=whiteRatio ? "#000000" : "#ffffff";
+    $("ink").value=settings.ink;
+  }
+  function readControls(changedId) {
     settings = {
       format:$("format").value, style:$("style").value,
       paper:$("paper").value, ink:$("ink").value, font:$("font").value,
       fontSize:Number($("font-size").value), lineHeight:Number($("line-height").value),
       align:$("align").value, margin:Number($("margin").value),
+      topPadding:Number($("top-padding").value), bottomPadding:Number($("bottom-padding").value),
       paragraphSpace:Number($("paragraph-space").value),
       pageNumber:$("page-number").value, pageNumberText:$("page-number-text").value.trim(),
       divider:$("divider").value, creditDivider:$("credit-divider").value
     };
+    ensureReadableContrast();
     updateOutputs();
     saveSettings();
   }
@@ -185,7 +207,7 @@
     }
     const bodyTop=y;
     const text=$("excerpt").value.replace(/\r\n?/g,"\n");
-    const paragraphs=text.split(/\n\s*\n/).map(p=>p.replace(/\n/g," ").trim()).filter(Boolean);
+    const paragraphs=text.split(/\n+/).map(p=>p.trim()).filter(Boolean);
     const bodyFont=excerptFontSize;
     ctx.font=bodyFont+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     const bodyLines=[];
@@ -303,6 +325,14 @@
       else { ctx.textAlign="right"; ctx.fillText(settings.pageNumberText,width-margin,numberY); }
       ctx.restore();
     }
+    ctx.save();
+    ctx.fillStyle=settings.ink;
+    ctx.globalAlpha=.72;
+    ctx.font="16px "+JSON.stringify(settings.font)+", Georgia, serif";
+    ctx.textAlign="center";
+    ctx.textBaseline="alphabetic";
+    ctx.fillText("generated @ tlcstoryworks.github.io",center,height-22);
+    ctx.restore();
     lastLayout=layout;
     updateStatus(layout);
   }
@@ -358,8 +388,8 @@
   }
   function bindEvents() {
     for(const id of ["format","font","font-size","line-height","align","margin","paragraph-space","top-padding","bottom-padding","page-number","page-number-text","divider","credit-divider","paper","ink"]) {
-      $(id).addEventListener("input",()=>{ readControls(); renderPage(); });
-      $(id).addEventListener("change",()=>{ readControls(); renderPage(); });
+      $(id).addEventListener("input",()=>{ readControls(id); renderPage(); });
+      $(id).addEventListener("change",()=>{ readControls(id); renderPage(); });
     }
     $("style").addEventListener("change",()=>{setStylePreset($("style").value);saveSettings();renderPage();});
     $("excerpt").addEventListener("input",renderPage);
