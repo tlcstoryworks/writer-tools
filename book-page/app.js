@@ -6,7 +6,7 @@
   const STORAGE_KEY = "tlc-storyworks-book-page-settings-v1";
   const DEFAULTS = {
     format:"portrait", style:"neutral", paper:"#f8f5ee", ink:"#292724",
-    font:"Georgia", fontSize:27, lineHeight:1.55, align:"left", margin:11,
+    font:"Georgia", fontSize:27, lineHeight:1.55, align:"left", margin:11, topPadding:10.5, bottomPadding:8.5,
     paragraphSpace:.8, pageNumber:"none", pageNumberText:"1",
     divider:"none", creditDivider:"line"
   };
@@ -159,8 +159,8 @@
     const {width,height}=dimensions();
     const excerptFontSize=effectiveExcerptFontSize();
     const margin=width*settings.margin/100;
-    const top=height*(settings.format==="square"?.105:.09);
-    const bottom=height*(settings.format==="square"?.095:.085);
+    const top=height*settings.topPadding/100;
+    const bottom=height*settings.bottomPadding/100;
     const contentWidth=width-margin*2;
     const bookTitle=$("book-title").value.trim(), author=$("author").value.trim();
     const hasCredits=Boolean(bookTitle || author);
@@ -173,7 +173,6 @@
     ctx.font=excerptFontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     const lineHeight=excerptFontSize*settings.lineHeight;
     let y=top;
-    y+=height*.015;
     const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
     if(hasCredits) y+=creditFont*1.5 + 60;
     if(chapter) {
@@ -216,7 +215,6 @@
     const {margin,top,contentWidth,bookTitle,author,socialPlatforms,chapter,subtitle,excerptFontSize}=layout;
     const center=width/2;
     let y=top;
-    y+=height*.015;
     if(layout.bookTitle || layout.author) {
       const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
       ctx.font="bold "+creditFont+"px "+JSON.stringify(settings.font)+", Georgia, serif";
@@ -326,6 +324,24 @@
       message.hidden=true; $("download").disabled=false;
     }
   }
+  function applySharedHandle() {
+    const handle=$("shared-handle").value.trim();
+    if(!handle) return;
+    const platforms=["bluesky","facebook","instagram","tiktok","youtube","twitch","threads","x","website"];
+    let applied=0;
+    for(const id of platforms) {
+      if($("social-"+id).checked) {
+        $("social-"+id+"-value").value=handle;
+        applied++;
+      }
+    }
+    if(applied===0) {
+      $("shared-handle-status").textContent="Select one or more platforms first.";
+      return;
+    }
+    $("shared-handle-status").textContent="Applied to "+applied+" selected "+(applied===1?"platform.":"platforms.");
+    renderPage();
+  }
   function download() {
     if(!lastLayout || lastLayout.overflow || !$("excerpt").value.trim()) return;
     const link=document.createElement("a");
@@ -341,7 +357,7 @@
     renderPage();
   }
   function bindEvents() {
-    for(const id of ["format","font","font-size","line-height","align","margin","paragraph-space","page-number","page-number-text","divider","credit-divider","paper","ink"]) {
+    for(const id of ["format","font","font-size","line-height","align","margin","paragraph-space","top-padding","bottom-padding","page-number","page-number-text","divider","credit-divider","paper","ink"]) {
       $(id).addEventListener("input",()=>{ readControls(); renderPage(); });
       $(id).addEventListener("change",()=>{ readControls(); renderPage(); });
     }
@@ -352,6 +368,7 @@
       $("social-"+id).addEventListener("change",renderPage);
       $("social-"+id+"-value").addEventListener("input",renderPage);
     }
+    $("apply-shared-handle").addEventListener("click",applySharedHandle);
     $("download").addEventListener("click",download);
     $("reset-settings").addEventListener("click",resetSettings);
   }
