@@ -80,8 +80,21 @@
     let line="";
     for(const word of words) {
       const candidate=line ? line+" "+word : word;
-      if(line && ctx.measureText(candidate).width>maxWidth) { lines.push(line); line=word; }
-      else line=candidate;
+      if(line && ctx.measureText(candidate).width>maxWidth) { lines.push(line); line=""; }
+      let fragment="";
+      for(const character of word) {
+        const next=fragment+character;
+        if(fragment && ctx.measureText(next).width>maxWidth) {
+          if(line) { lines.push(line); line=""; }
+          lines.push(fragment);
+          fragment=character;
+        } else fragment=next;
+      }
+      if(fragment) {
+        const joined=line ? line+" "+fragment : fragment;
+        if(line && ctx.measureText(joined).width>maxWidth) { lines.push(line); line=fragment; }
+        else line=joined;
+      }
     }
     if(line) lines.push(line);
     return lines;
@@ -174,7 +187,9 @@
       ctx.fillText(headerText.toUpperCase(),center,top+12,contentWidth); ctx.restore();
       ctx.save(); ctx.globalAlpha=.45; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(margin,top+28); ctx.lineTo(width-margin,top+28); ctx.stroke(); ctx.restore();
     }
-    let y=top+height*.015;
+    let y=top;
+    if(headerText) y+=24;
+    y+=height*.015;
     if(chapter) {
       ctx.textAlign="center"; ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
@@ -231,8 +246,6 @@
     settings={...DEFAULTS};
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
     applySettingsToControls();
-    $("book-title").value=""; $("author").value=""; $("chapter").value=""; $("subtitle").value="";
-    $("excerpt").value="";
     renderPage();
   }
   function bindEvents() {
