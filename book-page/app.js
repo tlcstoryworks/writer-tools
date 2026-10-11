@@ -8,7 +8,7 @@
     format:"portrait", style:"neutral", paper:"#f8f5ee", ink:"#292724",
     font:"Georgia", fontSize:27, lineHeight:1.55, align:"left", margin:11,
     paragraphSpace:.8, pageNumber:"none", pageNumberText:"1",
-    divider:"none"
+    divider:"none", creditDivider:"line"
   };
   const controlIds = Object.keys(DEFAULTS);
   const styles = {
@@ -110,19 +110,43 @@
     let cursor=x;
     for(const word of words) { ctx.fillText(word,cursor,y); cursor+=ctx.measureText(word).width+gap; }
   }
-  function drawDivider(cx,y) {
+  function drawDivider(kind,cx,y) {
     ctx.save();
     ctx.fillStyle=settings.ink;
     ctx.strokeStyle=settings.ink;
     ctx.globalAlpha=.8;
-    if(settings.divider==="dots" || settings.divider==="asterisks") {
-      ctx.font=(settings.divider==="dots"?"20px Georgia":"24px Georgia");
+    if(kind==="dots" || kind==="asterisks") {
+      ctx.font=(kind==="dots"?"20px Georgia":"24px Georgia");
       ctx.textAlign="center";
-      ctx.fillText(settings.divider==="dots"?"•  •  •":"*  *  *",cx,y);
-    } else if(settings.divider==="flourish") {
+      ctx.fillText(kind==="dots"?"•  •  •":"*  *  *",cx,y);
+    } else if(kind==="flourish") {
       ctx.font="34px Georgia"; ctx.textAlign="center"; ctx.fillText("❦",cx,y+4);
-    } else if(settings.divider==="line") {
+    } else if(kind==="line") {
       ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-55,y-7); ctx.lineTo(cx+55,y-7); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawCreditDivider(kind,margin,width,y) {
+    if(kind==="none") return;
+    ctx.save();
+    ctx.strokeStyle=settings.ink;
+    ctx.fillStyle=settings.ink;
+    ctx.globalAlpha=.55;
+    ctx.lineWidth=2;
+    if(kind==="line") {
+      ctx.beginPath(); ctx.moveTo(margin,y); ctx.lineTo(width-margin,y); ctx.stroke();
+    } else {
+      const center=width/2, halfSpan=Math.min(110,(width-margin*2)*.18);
+      ctx.beginPath(); ctx.moveTo(margin,y); ctx.lineTo(center-halfSpan,y);
+      ctx.moveTo(center+halfSpan,y); ctx.lineTo(width-margin,y); ctx.stroke();
+      ctx.globalAlpha=.85;
+      if(kind==="dots") {
+        ctx.font="20px Georgia"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("•  •  •",center,y);
+      } else if(kind==="asterisks") {
+        ctx.font="24px Georgia"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("*  *  *",center,y);
+      } else if(kind==="flourish") {
+        ctx.font="34px Georgia"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("❦",center,y+1);
+      }
     }
     ctx.restore();
   }
@@ -151,7 +175,7 @@
     let y=top;
     y+=height*.015;
     const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
-    if(hasCredits) y+=creditFont*1.5 + 44;
+    if(hasCredits) y+=creditFont*1.5 + 60;
     if(chapter) {
       ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
@@ -202,16 +226,15 @@
       ctx.textAlign="right";
       if(author) ctx.fillText(author,width-margin,y+creditFont,contentWidth*.38);
       y+=creditFont*1.5;
-      ctx.save(); ctx.globalAlpha=.5; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.moveTo(margin,y+8); ctx.lineTo(width-margin,y+8); ctx.stroke(); ctx.restore();
-      y+=44;
+      drawCreditDivider(settings.creditDivider,margin,width,y+8);
+      y+=60;
     }
     if(chapter) {
       ctx.textAlign="center"; ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
       for(const line of titleLines) { y+=Math.round(settings.fontSize*1.65); ctx.fillText(line,center,y,contentWidth); }
       if(subtitle) { ctx.font="italic "+Math.round(settings.fontSize*.85)+"px "+JSON.stringify(settings.font)+", Georgia, serif"; y+=Math.round(settings.fontSize*1.3); ctx.fillText(subtitle,center,y,contentWidth); }
-      if(settings.divider!=="none") { y+=settings.fontSize*1.1; drawDivider(center,y); }
+      if(settings.divider!=="none") { y+=settings.fontSize*1.1; drawDivider(settings.divider,center,y); }
     }
     ctx.save();
     const clipTop=layout.bodyTop-layout.excerptFontSize*1.25;
@@ -318,7 +341,7 @@
     renderPage();
   }
   function bindEvents() {
-    for(const id of ["format","font","font-size","line-height","align","margin","paragraph-space","page-number","page-number-text","divider","paper","ink"]) {
+    for(const id of ["format","font","font-size","line-height","align","margin","paragraph-space","page-number","page-number-text","divider","credit-divider","paper","ink"]) {
       $(id).addEventListener("input",()=>{ readControls(); renderPage(); });
       $(id).addEventListener("change",()=>{ readControls(); renderPage(); });
     }
