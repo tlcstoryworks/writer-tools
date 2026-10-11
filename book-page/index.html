@@ -32,7 +32,54 @@
           <label class="field">Author name <input id="author" type="text" maxlength="100" placeholder="Optional"></label>
           <label class="field">Chapter heading <input id="chapter" type="text" maxlength="100" placeholder="e.g. Chapter One"></label>
           <label class="field">Chapter subtitle <input id="subtitle" type="text" maxlength="120" placeholder="Optional"></label>
-          <label class="field">Social links or website <input id="social-links" type="text" maxlength="180" placeholder="@handle · website.com"></label>
+        </div>
+        <fieldset class="social-settings">
+          <legend>Social links to show on the image</legend>
+          <p class="field-help">Select the platforms you want to display, then enter a handle or short link for each.</p>
+          <div class="social-fields">
+            <label class="social-field"><input type="checkbox" id="social-bluesky"><span class="social-mark">BS</span><span>Bluesky</span><input id="social-bluesky-value" type="text" maxlength="80" placeholder="@handle or link"></label>
+            <label class="social-field"><input type="checkbox" id="social-instagram"><span class="social-mark">IG</span><span>Instagram</span><input id="social-instagram-value" type="text" maxlength="80" placeholder="@handle or link"></label>
+            <label class="social-field"><input type="checkbox" id="social-tiktok"><span class="social-mark">TT</span><span>TikTok</span><input id="social-tiktok-value" type="text" maxlength="80" placeholder="@handle or link"></label>
+            <label class="social-field"><input type="checkbox" id="social-youtube"><span class="social-mark">YT</span><span>YouTube</span><input id="social-youtube-value" type="text" maxlength="80" placeholder="Channel or link"></label>
+            <label class="social-field"><input type="checkbox" id="social-twitch"><span class="social-mark">TW</span><span>Twitch</span><input id="social-twitch-value" type="text" maxlength="80" placeholder="Username or link"></label>
+            <label class="social-field"><input type="checkbox" id="social-threads"><span class="social-mark">TH</span><span>Threads</span><input id="social-threads-value" type="text" maxlength="80" placeholder="@handle or link"></label>
+            <label class="social-field"><input type="checkbox" id="social-x"><span class="social-mark">X</span><span>X</span><input id="social-x-value" type="text" maxlength="80" placeholder="@handle or link"></label>
+            <label class="social-field"><input type="checkbox" id="social-website"><span class="social-mark">↗</span><span>Website</span><input id="social-website-value" type="text" maxlength="80" placeholder="Your website"></label>
+          </div>
+        </fieldset>
+        <label class="field">Chapter divider
+          <select id="divider">
+            <option value="none">None</option>
+            <option value="dots">Three dots · • • •</option>
+            <option value="asterisks">Asterisks · * * *</option>
+            <option value="line">Fine line</option>
+            <option value="flourish">Simple flourish · ❦</option>
+          </select>
+        </label>
+
+        <details class="settings-group" open>
+          <summary>Page format &amp; style</summary>
+          <div class="settings-content">
+            <div class="field-grid">
+              <label class="field">Image format
+                <select id="format"><option value="portrait">Portrait book page</option><option value="square">Square share card</option></select>
+              </label>
+              <label class="field">Page style
+                <select id="style">
+                  <option value="neutral">Neutral paper</option>
+                  <option value="classic">Classic paperback</option>
+                  <option value="modern">Modern literary</option>
+                  <option value="dark">Dark reading</option>
+                </select>
+              </label>
+              <label class="field">Page background <span class="color-field"><input id="paper" type="color" value="#f8f5ee"><output id="paper-value">#f8f5ee</output></span></label>
+              <label class="field">Text color <span class="color-field"><input id="ink" type="color" value="#292724"><output id="ink-value">#292724</output></span></label>
+            </div>
+          </div>
+        </details>
+
+        <details class="settings-group" open>
+          <summary>Typography & layout</summary>
         </div>
         <label class="field">Chapter divider
           <select id="divider">
