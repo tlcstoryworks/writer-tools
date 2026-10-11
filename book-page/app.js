@@ -139,6 +139,7 @@
     const bottom=height*(settings.format==="square"?.095:.085);
     const contentWidth=width-margin*2;
     const bookTitle=$("book-title").value.trim(), author=$("author").value.trim();
+    const hasCredits=Boolean(bookTitle || author);
     const chapter=$("chapter").value.trim(), subtitle=$("subtitle").value.trim();
     const socialPlatforms = [
       ["bluesky","BS"],["facebook","f"],["instagram","IG"],["tiktok","TT"],["youtube","YT"],
@@ -150,7 +151,7 @@
     let y=top;
     y+=height*.015;
     const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
-    if(bookTitle || author) y+=creditFont*1.5 + 26;
+    if(hasCredits) y+=creditFont*1.5 + 44;
     if(chapter) {
       ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
@@ -192,7 +193,7 @@
     const center=width/2;
     let y=top;
     y+=height*.015;
-    if(bookTitle || author) {
+    if(layout.bookTitle || layout.author) {
       const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
       ctx.font="bold "+creditFont+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       ctx.textAlign="left";
@@ -203,7 +204,7 @@
       y+=creditFont*1.5;
       ctx.save(); ctx.globalAlpha=.5; ctx.lineWidth=2;
       ctx.beginPath(); ctx.moveTo(margin,y+8); ctx.lineTo(width-margin,y+8); ctx.stroke(); ctx.restore();
-      y+=26;
+      y+=44;
     }
     if(chapter) {
       ctx.textAlign="center"; ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
