@@ -48,15 +48,26 @@
             <label class="social-field"><input type="checkbox" id="social-website"><span class="social-mark">↗</span><span>Website</span><input id="social-website-value" type="text" maxlength="80" placeholder="Your website"></label>
           </div>
         </fieldset>
-        <label class="field">Chapter divider
-          <select id="divider">
-            <option value="none">None</option>
-            <option value="dots">Three dots · • • •</option>
-            <option value="asterisks">Asterisks · * * *</option>
-            <option value="line">Fine line</option>
-            <option value="flourish">Simple flourish · ❦</option>
-          </select>
-        </label>
+        <div class="field-grid">
+          <label class="field">Book title / author divider
+            <select id="credit-divider">
+              <option value="line">Fine line</option>
+              <option value="dots">Three dots · • • •</option>
+              <option value="asterisks">Asterisks · * * *</option>
+              <option value="flourish">Simple flourish · ❦</option>
+              <option value="none">None</option>
+            </select>
+          </label>
+          <label class="field">Chapter divider
+            <select id="divider">
+              <option value="none">None</option>
+              <option value="dots">Three dots · • • •</option>
+              <option value="asterisks">Asterisks · * * *</option>
+              <option value="line">Fine line</option>
+              <option value="flourish">Simple flourish · ❦</option>
+            </select>
+          </label>
+        </div>
 
         <details class="settings-group" open>
           <summary>Page format &amp; style</summary>
@@ -140,6 +151,6 @@
     </nav>
   </footer>
   <script src="../theme.js"></script>
-  <script src="app.js?v=20261011-5"></script>
+  <script src="app.js?v=20261011-6"></script>
 </body>
 </html>
