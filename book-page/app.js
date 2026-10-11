@@ -40,7 +40,7 @@
       align:$("align").value, margin:Number($("margin").value),
       paragraphSpace:Number($("paragraph-space").value),
       pageNumber:$("page-number").value, pageNumberText:$("page-number-text").value.trim(),
-      divider:$("divider").value
+      divider:$("divider").value, creditDivider:$("credit-divider").value
     };
     updateOutputs();
     saveSettings();
