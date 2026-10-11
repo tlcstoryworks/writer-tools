@@ -133,7 +133,9 @@
     const bottom=height*(settings.format==="square"?.095:.085);
     const contentWidth=width-margin*2;
     const headerText=settings.headerMode==="title"?$("book-title").value.trim():settings.headerMode==="author"?$("author").value.trim():"";
+    const bookTitle=$("book-title").value.trim(), author=$("author").value.trim();
     const chapter=$("chapter").value.trim(), subtitle=$("subtitle").value.trim();
+    const socialLinks=$("social-links").value.trim();
     ctx.font=settings.fontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     const lineHeight=settings.fontSize*settings.lineHeight;
     let y=top;
@@ -144,6 +146,16 @@
       y+=24;
     }
     y+=height*.015;
+    if(bookTitle) {
+      ctx.font="bold "+Math.round(settings.fontSize*1.18)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+      y+=Math.round(settings.fontSize*1.55);
+      y+=settings.fontSize*.15;
+    }
+    if(author) {
+      ctx.font="italic "+Math.round(settings.fontSize*.82)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+      y+=Math.round(settings.fontSize*1.2);
+    }
+    if(bookTitle || author) y+=settings.fontSize*.65;
     if(chapter) {
       ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
@@ -171,7 +183,7 @@
     }
     const contentBottom=height-bottom-(settings.pageNumber!=="none"?height*.045:0);
     const overflow=cursor-lineHeight>contentBottom+1;
-    return {width,height,margin,top,bottom,contentWidth,headerText,headerLines,chapter,subtitle,bodyTop,bodyLines,lineY,contentBottom,overflow,headerHeight:top};
+    return {width,height,margin,top,bottom,contentWidth,headerText,headerLines,bookTitle,author,socialLinks,chapter,subtitle,bodyTop,bodyLines,lineY,contentBottom,overflow,headerHeight:top};
   }
   function renderPage() {
     const {width,height}=dimensions();
@@ -180,7 +192,7 @@
     ctx.fillStyle=settings.paper; ctx.fillRect(0,0,width,height);
     ctx.fillStyle=settings.ink; ctx.strokeStyle=settings.ink;
     const layout=layoutPage();
-    const {margin,top,contentWidth,headerText,chapter,subtitle}=layout;
+    const {margin,top,contentWidth,headerText,bookTitle,author,socialLinks,chapter,subtitle}=layout;
     const center=width/2;
     if(headerText) {
       ctx.save(); ctx.globalAlpha=.75; ctx.font="16px "+JSON.stringify(settings.font)+", Georgia, serif"; ctx.textAlign="center";
@@ -190,6 +202,16 @@
     let y=top;
     if(headerText) y+=24;
     y+=height*.015;
+    if(bookTitle) {
+      ctx.textAlign="center"; ctx.font="bold "+Math.round(settings.fontSize*1.18)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+      y+=Math.round(settings.fontSize*1.55); ctx.fillText(bookTitle,center,y,contentWidth);
+      y+=settings.fontSize*.15;
+    }
+    if(author) {
+      ctx.textAlign="center"; ctx.font="italic "+Math.round(settings.fontSize*.82)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+      y+=Math.round(settings.fontSize*1.2); ctx.fillText(author,center,y,contentWidth);
+    }
+    if(bookTitle || author) y+=settings.fontSize*.65;
     if(chapter) {
       ctx.textAlign="center"; ctx.font="bold "+Math.round(settings.fontSize*1.2)+"px "+JSON.stringify(settings.font)+", Georgia, serif";
       const titleLines=wrapParagraph(chapter,contentWidth);
@@ -198,7 +220,8 @@
       if(settings.divider!=="none") { y+=settings.fontSize*1.1; drawDivider(center,y); }
     }
     ctx.save();
-    ctx.beginPath(); ctx.rect(margin,layout.bodyTop-2,contentWidth,Math.max(0,layout.contentBottom-layout.bodyTop)); ctx.clip();
+    const clipTop=layout.bodyTop-settings.fontSize*1.25;
+    ctx.beginPath(); ctx.rect(margin,clipTop,contentWidth,Math.max(0,layout.contentBottom-clipTop)); ctx.clip();
     ctx.font=settings.fontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     ctx.fillStyle=settings.ink; ctx.textBaseline="alphabetic";
     for(const item of layout.lineY) {
@@ -206,6 +229,14 @@
       else { ctx.textAlign="left"; ctx.fillText(item.line.text,margin,item.y); }
     }
     ctx.restore();
+    if(socialLinks) {
+      ctx.save(); ctx.globalAlpha=.8; ctx.fillStyle=settings.ink;
+      ctx.font="18px "+JSON.stringify(settings.font)+", Georgia, serif"; ctx.textAlign="center";
+      const socialLines=wrapParagraph(socialLinks,contentWidth).slice(0,2);
+      const socialStart=height-layout.bottom*.9-(socialLines.length-1)*22;
+      socialLines.forEach((line,i)=>ctx.fillText(line,center,socialStart+i*22,contentWidth));
+      ctx.restore();
+    }
     if(settings.pageNumber!=="none" && settings.pageNumberText) {
       ctx.save(); ctx.globalAlpha=.85; ctx.font="18px "+JSON.stringify(settings.font)+", Georgia, serif";
       const numberY=height-layout.bottom*.42;
@@ -255,7 +286,7 @@
     }
     $("style").addEventListener("change",()=>{setStylePreset($("style").value);saveSettings();renderPage();});
     $("excerpt").addEventListener("input",renderPage);
-    for(const id of ["book-title","author","chapter","subtitle"]) $(id).addEventListener("input",renderPage);
+    for(const id of ["book-title","author","chapter","subtitle","social-links"]) $(id).addEventListener("input",renderPage);
     $("download").addEventListener("click",download);
     $("reset-settings").addEventListener("click",resetSettings);
   }
