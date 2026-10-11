@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Turn a writing excerpt into a customizable novel-style page image with TLC Storyworks.">
+  <title>Book Page Generator · TLC Storyworks</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../theme.css">
+  <link rel="stylesheet" href="../links.css">
+</head>
+<body data-tool="book-page">
+  <a class="back-link" href="../">← Writing Tools</a>
+  <main class="generator-shell" id="top">
+    <header class="page-hero">
+      <p class="eyebrow">TLC Storyworks · Writing Tools</p>
+      <h1>Book Page Generator</h1>
+      <p class="lede">Turn an excerpt into a novel-style page image for sharing. Shape the page, tune the typography, and export a PNG—your manuscript stays in your browser.</p>
+    </header>
+
+    <div class="workspace">
+      <section class="editor-panel" aria-labelledby="excerpt-heading">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Your words</p><h2 id="excerpt-heading">Excerpt &amp; details</h2></div>
+        </div>
+        <label class="field">Paste your excerpt
+          <textarea id="excerpt" rows="12" placeholder="Paste a passage from your story here…" spellcheck="true"></textarea>
+        </label>
+        <p class="field-help">Text is rendered locally for this session and is not uploaded or saved by this tool.</p>
+        <div class="field-grid">
+          <label class="field">Book or story title <input id="book-title" type="text" maxlength="100" placeholder="Optional"></label>
+          <label class="field">Author name <input id="author" type="text" maxlength="100" placeholder="Optional"></label>
+          <label class="field">Chapter heading <input id="chapter" type="text" maxlength="100" placeholder="e.g. Chapter One"></label>
+          <label class="field">Chapter subtitle <input id="subtitle" type="text" maxlength="120" placeholder="Optional"></label>
+        </div>
+        <label class="field">Chapter divider
+          <select id="divider">
+            <option value="none">None</option>
+            <option value="dots">Three dots · • • •</option>
+            <option value="asterisks">Asterisks · * * *</option>
+            <option value="line">Fine line</option>
+            <option value="flourish">Simple flourish · ❦</option>
+          </select>
+        </label>
+
+        <details class="settings-group" open>
+          <summary>Page format &amp; style</summary>
+          <div class="settings-content">
+            <div class="field-grid">
+              <label class="field">Image format
+                <select id="format"><option value="portrait">Portrait book page</option><option value="square">Square share card</option></select>
+              </label>
+              <label class="field">Page style
+                <select id="style">
+                  <option value="neutral">Neutral paper</option>
+                  <option value="classic">Classic paperback</option>
+                  <option value="modern">Modern literary</option>
+                  <option value="dark">Dark reading</option>
+                </select>
+              </label>
+              <label class="field">Page background <span class="color-field"><input id="paper" type="color" value="#f8f5ee"><output id="paper-value">#f8f5ee</output></span></label>
+              <label class="field">Text color <span class="color-field"><input id="ink" type="color" value="#292724"><output id="ink-value">#292724</output></span></label>
+            </div>
+          </div>
+        </details>
+
+        <details class="settings-group" open>
+          <summary>Typography &amp; layout</summary>
+          <div class="settings-content">
+            <div class="field-grid">
+              <label class="field">Typeface
+                <select id="font">
+                  <option value="Georgia">Georgia</option>
+                  <option value="Palatino Linotype">Palatino</option>
+                  <option value="Baskerville">Baskerville</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Arial">Sans serif</option>
+                </select>
+              </label>
+              <label class="field">Text size <span class="range-value"><input id="font-size" type="range" min="20" max="38" value="27"><output id="font-size-value">27 px</output></span></label>
+              <label class="field">Line spacing <span class="range-value"><input id="line-height" type="range" min="1.25" max="1.9" step="0.05" value="1.55"><output id="line-height-value">1.55×</output></span></label>
+              <label class="field">Text alignment
+                <select id="align"><option value="left">Left aligned</option><option value="justify">Justified</option></select>
+              </label>
+              <label class="field">Page margins <span class="range-value"><input id="margin" type="range" min="7" max="16" value="11"><output id="margin-value">11%</output></span></label>
+              <label class="field">Paragraph spacing <span class="range-value"><input id="paragraph-space" type="range" min="0.3" max="1.5" step="0.1" value="0.8"><output id="paragraph-space-value">0.8×</output></span></label>
+            </div>
+            <div class="field-grid">
+              <label class="field">Header
+                <select id="header-mode"><option value="none">No running header</option><option value="title">Book title</option><option value="author">Author name</option></select>
+              </label>
+              <label class="field">Page number
+                <select id="page-number"><option value="none">Hide page number</option><option value="center">Bottom center</option><option value="outer">Bottom outer corner</option></select>
+              </label>
+              <label class="field">Page number text <input id="page-number-text" type="text" maxlength="12" value="1" placeholder="1"></label>
+            </div>
+          </div>
+        </details>
+        <div class="editor-actions">
+          <button id="reset-settings" type="button" class="secondary">Reset settings</button>
+          <button id="download" type="button" class="primary">Export PNG</button>
+        </div>
+        <p class="export-note">PNG export uses a high-resolution canvas. Preview and export use the same layout calculations.</p>
+      </section>
+
+      <section class="preview-panel" aria-labelledby="preview-heading">
+        <div class="preview-heading">
+          <div><p class="eyebrow">Live preview</p><h2 id="preview-heading">Your page</h2></div>
+          <span id="fit-status" class="fit-status" role="status">Add an excerpt to begin.</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="page-canvas" width="1600" height="2200" aria-label="Live preview of your novel-style page"></canvas>
+        </div>
+        <p id="overflow-message" class="overflow-message" hidden></p>
+        <p class="preview-help">The preview is scaled to fit this panel. Your exported image will be larger and sharper.</p>
+        <div class="preview-stats"><span id="word-count">0 words</span><span id="character-count">0 characters</span></div>
+      </section>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <p class="copyright">© 2026 TLC Storyworks</p>
+    <nav class="footer-links" aria-label="TLC Storyworks links">
+      <a href="../">← Back to Writing Tools</a>
+      <a href="https://github.com/tlcstoryworks/writer-tools">Repository</a>
+      <a href="https://github.com/tlcstoryworks/writer-tools/discussions">Feedback &amp; discussions</a>
+      <a href="https://github.com/sponsors/tlcstoryworks">Support project</a>
+      <a href="#top">Top ↑</a>
+    </nav>
+  </footer>
+  <script src="../theme.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
