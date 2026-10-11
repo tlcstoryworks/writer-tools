@@ -136,10 +136,10 @@
     const bookTitle=$("book-title").value.trim(), author=$("author").value.trim();
     const chapter=$("chapter").value.trim(), subtitle=$("subtitle").value.trim();
     const socialPlatforms = [
-      ["bluesky","BS"],["instagram","IG"],["tiktok","TT"],["youtube","YT"],
+      ["bluesky","BS"],["facebook","f"],["instagram","IG"],["tiktok","TT"],["youtube","YT"],
       ["twitch","TW"],["threads","TH"],["x","X"],["website","↗"]
     ].filter(([id]) => $("social-"+id).checked && $("social-"+id+"-value").value.trim())
-      .map(([id,icon]) => ({id,icon,label:({bluesky:"Bluesky",instagram:"Instagram",tiktok:"TikTok",youtube:"YouTube",twitch:"Twitch",threads:"Threads",x:"X",website:"Website"})[id],value:$("social-"+id+"-value").value.trim()}));
+      .map(([id,icon]) => ({id,icon,label:({bluesky:"Bluesky",facebook:"Facebook",instagram:"Instagram",tiktok:"TikTok",youtube:"YouTube",twitch:"Twitch",threads:"Threads",x:"X",website:"Website"})[id],value:$("social-"+id+"-value").value.trim()}));
     ctx.font=settings.fontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     const lineHeight=settings.fontSize*settings.lineHeight;
     let y=top;
@@ -244,10 +244,36 @@
         const itemWidth=iconSize+labelGap+item.textWidth;
         if(x+itemWidth>width-margin && x>margin) { row++; x=margin; yIcon=footerY+2+row*42; }
         ctx.save();
-        ctx.beginPath(); ctx.arc(x+iconSize/2,yIcon+iconSize/2,iconSize/2,0,Math.PI*2);
-        ctx.globalAlpha=.14; ctx.fill(); ctx.globalAlpha=.95;
-        ctx.font="bold 13px Arial, sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle";
-        ctx.fillText(item.icon,x+iconSize/2,yIcon+iconSize/2);
+        ctx.globalAlpha=.95; ctx.strokeStyle=settings.ink; ctx.fillStyle=settings.ink;
+        ctx.lineWidth=2.4; ctx.lineCap="round"; ctx.lineJoin="round";
+        const ix=x+iconSize/2, iy=yIcon+iconSize/2, r=iconSize*.34;
+        if(item.id==="instagram") {
+          ctx.beginPath(); ctx.roundRect(ix-r,iy-r,r*2,r*2,6); ctx.stroke();
+          ctx.beginPath(); ctx.arc(ix,iy,r*.42,0,Math.PI*2); ctx.stroke();
+          ctx.beginPath(); ctx.arc(ix+r*.55,iy-r*.55,1.7,0,Math.PI*2); ctx.fill();
+        } else if(item.id==="youtube") {
+          ctx.beginPath(); ctx.roundRect(ix-r*1.25,iy-r*.78,r*2.5,r*1.56,5); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(ix-r*.25,iy-r*.42); ctx.lineTo(ix+r*.42,iy); ctx.lineTo(ix-r*.25,iy+r*.42); ctx.closePath(); ctx.fill();
+        } else if(item.id==="tiktok") {
+          ctx.beginPath(); ctx.moveTo(ix+3,iy-r); ctx.lineTo(ix+3,iy+r*.35); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(ix+3,iy-r); ctx.lineTo(ix+r*.65,iy-r*.72); ctx.stroke();
+          ctx.beginPath(); ctx.arc(ix-r*.28,iy+r*.35,r*.42,0,Math.PI*2); ctx.stroke();
+        } else if(item.id==="x") {
+          ctx.beginPath(); ctx.moveTo(ix-r,iy-r); ctx.lineTo(ix+r,iy+r); ctx.moveTo(ix+r,iy-r); ctx.lineTo(ix-r,iy+r); ctx.stroke();
+        } else if(item.id==="threads") {
+          ctx.font="bold 28px Georgia, serif"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("@",ix,iy+1);
+        } else if(item.id==="website") {
+          ctx.beginPath(); ctx.arc(ix,iy,r,0,Math.PI*2); ctx.stroke();
+          ctx.beginPath(); ctx.ellipse(ix,iy,r*.45,r,0,0,Math.PI*2); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(ix-r,iy); ctx.lineTo(ix+r,iy); ctx.stroke();
+        } else if(item.id==="facebook") {
+          ctx.font="bold 31px Arial, sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("f",ix,iy+1);
+        } else if(item.id==="twitch") {
+          ctx.beginPath(); ctx.rect(ix-r,iy-r*.72,r*2,r*1.35); ctx.moveTo(ix-r*.3,iy+r*.63); ctx.lineTo(ix-r*.52,iy+r); ctx.lineTo(ix+r*.1,iy+r*.63); ctx.stroke();
+          ctx.font="bold 13px Arial, sans-serif"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("T",ix,iy-1);
+        } else if(item.id==="bluesky") {
+          ctx.beginPath(); ctx.moveTo(ix,iy); ctx.bezierCurveTo(ix-r*1.4,iy-r*1.7,ix-r*1.4,iy-r*.2,ix,iy); ctx.bezierCurveTo(ix+r*1.4,iy-r*1.7,ix+r*1.4,iy-r*.2,ix,iy); ctx.bezierCurveTo(ix-r*.8,iy+r*.1,ix-r*.9,iy+r*.8,ix,iy); ctx.bezierCurveTo(ix+r*.9,iy+r*.8,ix+r*.8,iy+r*.1,ix,iy); ctx.stroke();
+        }
         ctx.font="18px "+JSON.stringify(settings.font)+", Georgia, serif"; ctx.textAlign="left"; ctx.textBaseline="middle";
         ctx.fillText(item.shown,x+iconSize+labelGap,yIcon+iconSize/2,item.textWidth);
         ctx.restore();
@@ -305,7 +331,7 @@
     $("style").addEventListener("change",()=>{setStylePreset($("style").value);saveSettings();renderPage();});
     $("excerpt").addEventListener("input",renderPage);
     for(const id of ["book-title","author","chapter","subtitle"]) $(id).addEventListener("input",renderPage);
-    for(const id of ["bluesky","instagram","tiktok","youtube","twitch","threads","x","website"]) {
+    for(const id of ["bluesky","facebook","instagram","tiktok","youtube","twitch","threads","x","website"]) {
       $("social-"+id).addEventListener("change",renderPage);
       $("social-"+id+"-value").addEventListener("input",renderPage);
     }
