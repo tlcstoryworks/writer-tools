@@ -47,3 +47,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media(max-width:900px) { .workspace { grid-template-columns:1fr; } .preview-panel { position:static; } #page-canvas { max-height:none; max-width:min(100%,560px); } }
 @media(max-width:560px) { .generator-shell { width:94vw; padding-top:4.5rem; } .editor-panel,.preview-panel { padding:.9rem; } .field-grid { grid-template-columns:1fr; } .preview-heading { align-items:flex-start; flex-direction:column; } .fit-status { max-width:100%; } .canvas-wrap { min-height:260px; padding:.4rem; } .preview-stats { flex-wrap:wrap; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }
+.social-settings { min-width:0; margin:1rem 0; padding:.85rem 1rem 1rem; border:1px solid var(--theme-border); border-radius:12px; }
+.social-settings legend { padding:0 .35rem; font-weight:700; font-size:.9rem; }
+.social-settings .field-help { margin:.1rem 0 .8rem; }
+.social-fields { display:grid; gap:.5rem; }
+.social-field { display:grid; grid-template-columns:20px 30px minmax(75px,.6fr) minmax(100px,1.4fr); align-items:center; gap:.55rem; color:var(--theme-text); font-size:.83rem; }
+.social-field input[type=checkbox] { width:17px; height:17px; min-height:0; accent-color:var(--theme-accent); }
+.social-field input[type=text] { min-height:38px; padding:.45rem .6rem; }
+.social-mark { display:grid; place-items:center; width:28px; height:28px; border:1px solid var(--theme-border); border-radius:50%; font-size:.67rem; font-weight:800; }
+@media(max-width:560px) { .social-field { grid-template-columns:20px 30px minmax(70px,.7fr) minmax(90px,1.3fr); gap:.35rem; font-size:.76rem; } }
