@@ -7,7 +7,7 @@
   const DEFAULTS = {
     format:"portrait", style:"neutral", paper:"#f8f5ee", ink:"#292724",
     font:"Georgia", fontSize:27, lineHeight:1.55, align:"left", margin:11,
-    paragraphSpace:.8, headerMode:"none", pageNumber:"none", pageNumberText:"1",
+    paragraphSpace:.8, pageNumber:"none", pageNumberText:"1",
     divider:"none"
   };
   const controlIds = Object.keys(DEFAULTS);
@@ -38,7 +38,7 @@
       paper:$("paper").value, ink:$("ink").value, font:$("font").value,
       fontSize:Number($("font-size").value), lineHeight:Number($("line-height").value),
       align:$("align").value, margin:Number($("margin").value),
-      paragraphSpace:Number($("paragraph-space").value), headerMode:$("header-mode").value,
+      paragraphSpace:Number($("paragraph-space").value),
       pageNumber:$("page-number").value, pageNumberText:$("page-number-text").value.trim(),
       divider:$("divider").value
     };
@@ -126,13 +126,18 @@
     }
     ctx.restore();
   }
+  function effectiveExcerptFontSize() {
+    const words=splitWords($("excerpt").value).length;
+    const boost=words>0 && words<=100 ? 4 : words<=220 && words>100 ? 2 : 0;
+    return Math.min(38,settings.fontSize+boost);
+  }
   function layoutPage() {
     const {width,height}=dimensions();
+    const excerptFontSize=effectiveExcerptFontSize();
     const margin=width*settings.margin/100;
     const top=height*(settings.format==="square"?.105:.09);
     const bottom=height*(settings.format==="square"?.095:.085);
     const contentWidth=width-margin*2;
-    const headerText=settings.headerMode==="title"?$("book-title").value.trim():settings.headerMode==="author"?$("author").value.trim():"";
     const bookTitle=$("book-title").value.trim(), author=$("author").value.trim();
     const chapter=$("chapter").value.trim(), subtitle=$("subtitle").value.trim();
     const socialPlatforms = [
@@ -140,15 +145,9 @@
       ["twitch","TW"],["threads","TH"],["x","X"],["website","↗"]
     ].filter(([id]) => $("social-"+id).checked && $("social-"+id+"-value").value.trim())
       .map(([id,icon]) => ({id,icon,label:({bluesky:"Bluesky",facebook:"Facebook",instagram:"Instagram",tiktok:"TikTok",youtube:"YouTube",twitch:"Twitch",threads:"Threads",x:"X",website:"Website"})[id],value:$("social-"+id+"-value").value.trim()}));
-    ctx.font=settings.fontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
-    const lineHeight=settings.fontSize*settings.lineHeight;
+    ctx.font=excerptFontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+    const lineHeight=excerptFontSize*settings.lineHeight;
     let y=top;
-    const headerLines=[];
-    if(headerText) {
-      ctx.font="16px "+JSON.stringify(settings.font)+", Georgia, serif";
-      headerLines.push(headerText.toUpperCase());
-      y+=24;
-    }
     y+=height*.015;
     const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
     if(bookTitle || author) y+=creditFont*1.5 + 26;
@@ -163,7 +162,7 @@
     const bodyTop=y;
     const text=$("excerpt").value.replace(/\r\n?/g,"\n");
     const paragraphs=text.split(/\n\s*\n/).map(p=>p.replace(/\n/g," ").trim()).filter(Boolean);
-    const bodyFont=settings.fontSize;
+    const bodyFont=excerptFontSize;
     ctx.font=bodyFont+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     const bodyLines=[];
     for(let p=0;p<paragraphs.length;p++) {
@@ -180,7 +179,7 @@
     const contentBottom=height-bottom-(settings.pageNumber!=="none"?height*.045:0);
     const overflow=cursor-lineHeight>contentBottom+1;
     const footerHeight=socialPlatforms.length ? 86 : 0;
-    return {width,height,margin,top,bottom,contentWidth,headerText,headerLines,bookTitle,author,socialPlatforms,chapter,subtitle,bodyTop,bodyLines,lineY,contentBottom:contentBottom-footerHeight,overflow:cursor-lineHeight>contentBottom-footerHeight+1,headerHeight:top,footerHeight};
+    return {width,height,margin,top,bottom,contentWidth,bookTitle,author,socialPlatforms,chapter,subtitle,bodyTop,bodyLines,lineY,contentBottom:contentBottom-footerHeight,overflow:cursor-lineHeight>contentBottom-footerHeight+1,headerHeight:top,footerHeight,excerptFontSize};
   }
   function renderPage() {
     const {width,height}=dimensions();
@@ -189,15 +188,9 @@
     ctx.fillStyle=settings.paper; ctx.fillRect(0,0,width,height);
     ctx.fillStyle=settings.ink; ctx.strokeStyle=settings.ink;
     const layout=layoutPage();
-    const {margin,top,contentWidth,headerText,bookTitle,author,socialPlatforms,chapter,subtitle}=layout;
+    const {margin,top,contentWidth,bookTitle,author,socialPlatforms,chapter,subtitle,excerptFontSize}=layout;
     const center=width/2;
-    if(headerText) {
-      ctx.save(); ctx.globalAlpha=.75; ctx.font="16px "+JSON.stringify(settings.font)+", Georgia, serif"; ctx.textAlign="center";
-      ctx.fillText(headerText.toUpperCase(),center,top+12,contentWidth); ctx.restore();
-      ctx.save(); ctx.globalAlpha=.45; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(margin,top+28); ctx.lineTo(width-margin,top+28); ctx.stroke(); ctx.restore();
-    }
     let y=top;
-    if(headerText) y+=24;
     y+=height*.015;
     if(bookTitle || author) {
       const creditFont=Math.max(25,Math.round(settings.fontSize*.95));
@@ -220,9 +213,9 @@
       if(settings.divider!=="none") { y+=settings.fontSize*1.1; drawDivider(center,y); }
     }
     ctx.save();
-    const clipTop=layout.bodyTop-settings.fontSize*1.25;
+    const clipTop=layout.bodyTop-layout.excerptFontSize*1.25;
     ctx.beginPath(); ctx.rect(margin,clipTop,contentWidth,Math.max(0,layout.contentBottom-clipTop)); ctx.clip();
-    ctx.font=settings.fontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
+    ctx.font=layout.excerptFontSize+"px "+JSON.stringify(settings.font)+", Georgia, serif";
     ctx.fillStyle=settings.ink; ctx.textBaseline="alphabetic";
     for(const item of layout.lineY) {
       if(settings.align==="justify") drawJustifiedLine(item.line.text,margin,item.y,contentWidth,item.line.paragraphLast);
@@ -324,7 +317,7 @@
     renderPage();
   }
   function bindEvents() {
-    for(const id of ["format","font","font-size","line-height","align","margin","paragraph-space","header-mode","page-number","page-number-text","divider","paper","ink"]) {
+    for(const id of ["format","font","font-size","line-height","align","margin","paragraph-space","page-number","page-number-text","divider","paper","ink"]) {
       $(id).addEventListener("input",()=>{ readControls(); renderPage(); });
       $(id).addEventListener("change",()=>{ readControls(); renderPage(); });
     }
