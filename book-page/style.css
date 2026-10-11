@@ -56,3 +56,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .social-field input[type=text] { min-height:38px; padding:.45rem .6rem; }
 .social-mark { display:grid; place-items:center; width:28px; height:28px; border:1px solid var(--theme-border); border-radius:50%; font-size:.67rem; font-weight:800; }
 @media(max-width:560px) { .social-field { grid-template-columns:20px 30px minmax(70px,.7fr) minmax(90px,1.3fr); gap:.35rem; font-size:.76rem; } }
+
+.shared-social-handle { padding:.8rem; margin:0 0 .9rem; border:1px dashed var(--theme-border); border-radius:10px; }
+.shared-social-handle .field { margin-bottom:.6rem; }
+.shared-social-handle button { margin-bottom:.45rem; }
+.shared-social-handle .field-help { margin:0; }
