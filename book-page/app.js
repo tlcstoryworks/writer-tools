@@ -376,10 +376,42 @@
   }
   function download() {
     if(!lastLayout || lastLayout.overflow || !$("excerpt").value.trim()) return;
-    const link=document.createElement("a");
     const title=($("book-title").value.trim()||"book-page").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,50)||"book-page";
-    link.download=title+"-"+settings.format+".png";
-    link.href=canvas.toDataURL("image/png");
+    const filename=title+"-"+settings.format+".png";
+    const dataUrl=canvas.toDataURL("image/png");
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+
+    if(isIOS) {
+      // iOS Safari may ignore the download attribute for generated canvas images.
+      // Prefer its native share sheet so the user can save the PNG to Files.
+      try {
+        const base64=dataUrl.split(",")[1];
+        const binary=atob(base64);
+        const bytes=new Uint8Array(binary.length);
+        for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+        const file=new File([bytes],filename,{type:"image/png"});
+        if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
+          $("export-status").textContent="Choose Save to Files or another destination in the iOS share sheet.";
+          navigator.share({files:[file],title:"Book Page PNG"}).catch(error=>{
+            if(error.name!=="AbortError") $("export-status").textContent="Sharing wasn't available. Try Export PNG again, or open this page in Safari.";
+          });
+          return;
+        }
+      } catch(error) {
+        // Continue to the open-image fallback below.
+      }
+      // Older iOS versions can save the image from Safari's image viewer.
+      const opened=window.open(dataUrl,"_blank");
+      $("export-status").textContent=opened
+        ? "The PNG opened in a new tab. Press and hold the image to save it."
+        : "Your browser blocked the image tab. Try opening this page in Safari and exporting again.";
+      return;
+    }
+
+    const link=document.createElement("a");
+    link.download=filename;
+    link.href=dataUrl;
     link.click();
   }
   function resetSettings() {
